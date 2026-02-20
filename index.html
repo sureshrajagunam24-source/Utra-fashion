@@ -49,11 +49,8 @@
             </div>
         </div>
     </div>
-
     <script>
-        // Data Store (Temporarily saves user in memory)
-        var registeredUser = { email: "admin@gmail.com", pass: "1234" };
-
+        // Permanent-ah save panna localStorage use panrom
         function toggleAuth(type) {
             if(type === 'signup') {
                 document.getElementById('login-form').style.display = 'none';
@@ -67,12 +64,12 @@
         function registerUser() {
             var email = document.getElementById('reg-email').value;
             var pass = document.getElementById('reg-pass').value;
-            var name = document.getElementById('reg-name').value;
 
-            if(email && pass && name) {
-                registeredUser.email = email;
-                registeredUser.pass = pass;
-                alert("Registration Successful! Now Login with your details.");
+            if(email && pass) {
+                // Browser-la permanent-ah save aagum
+                localStorage.setItem('userEmail', email);
+                localStorage.setItem('userPass', pass);
+                alert("Registration Successful! Ippo Login pannunga.");
                 toggleAuth('login');
             } else {
                 alert("Please fill all details!");
@@ -83,14 +80,19 @@
             var emailInput = document.getElementById('login-email').value;
             var passInput = document.getElementById('login-pass').value;
 
-            if (emailInput === registeredUser.email && passInput === registeredUser.pass) {
+            // Save panna details-ah thirumba edukrom
+            var storedEmail = localStorage.getItem('userEmail');
+            var storedPass = localStorage.getItem('userPass');
+
+            if (emailInput === storedEmail && passInput === storedPass) {
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('product-page').style.display = 'block';
                 alert("Welcome back! Login Success.");
             } else {
-                alert("Incorrect Credentials! Please check.");
+                alert("Incorrect Credentials! Proper-ah Register pannunga.");
             }
         }
     </script>
+
 </body>
 </html>
