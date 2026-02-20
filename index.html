@@ -2,38 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loyal Fashion</title>
 </head>
 <body style="background-color: #f1f3f6; font-family: sans-serif; margin: 0; padding: 0;">
 
-    <!-- 1. LOGIN PAGE (Idhu dhaan modhala theriyum) -->
+    <!-- 1. LOGIN PAGE -->
     <div id="login-page" style="display: flex; width: 850px; height: 500px; margin: 50px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
-        <!-- Left Black Section -->
         <div style="flex: 0.4; background-color: #000000; padding: 40px; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
             <img src="image.png" alt="Logo" style="width: 150px; margin-bottom: 20px; border-radius: 50%;">
             <h1 style="font-size: 24px; letter-spacing: 2px; margin: 0; text-transform: uppercase; font-weight: bold; color: #ffd700;">Loyal Fashion</h1>
-            <p style="font-size: 12px; color: #888; margin-top: 10px; font-style: italic;">Stay Stylish, Stay Loyal</p>
+            <p style="font-size: 11px; color: #888; margin-top: 10px;">Stay Stylish, Stay Loyal</p>
         </div>
-        <!-- Right Form Section -->
         <div style="flex: 0.6; padding: 60px 50px; background-color: #ffffff;">
             <h2 style="color: #333; margin-bottom: 30px;">Login</h2>
-            <input type="text" id="email" placeholder="Email / Mobile Number" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; outline: none; font-size: 16px; margin-bottom: 25px;">
-            <input type="password" id="pass" placeholder="Password" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; outline: none; font-size: 16px; margin-bottom: 35px;">
+            <input type="text" id="email" placeholder="Email (admin@gmail.com)" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; outline: none; font-size: 16px; margin-bottom: 25px;">
+            <input type="password" id="pass" placeholder="Password (1234)" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; outline: none; font-size: 16px; margin-bottom: 35px;">
             <button onclick="checkLogin()" style="width: 100%; background: #000; color: white; border: none; padding: 16px; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer;">LOGIN</button>
         </div>
     </div>
 
-    <!-- 2. PRODUCT PAGE (Idhu hide aagi irukkum) -->
+    <!-- 2. PRODUCT PAGE (Hidden) -->
     <div id="product-page" style="display: none; text-align: center; padding: 50px;">
-        <h1>👑 Loyal Fashion - Welcome!</h1>
-        <h3>Our Exclusive Collection</h3>
+        <h1>👑 Loyal Fashion - Exclusive Store</h1>
         <div style="display: flex; justify-content: center; gap: 20px; margin-top: 30px;">
-            <div style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background: white;">
+            <div style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background: white; width: 250px;">
+                <div style="height: 150px; background: #eee; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: #999;">Image Coming Soon</div>
                 <h2>Casual Shirt</h2>
                 <p>Price: ₹799</p>
                 <button style="background: black; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Order Now</button>
             </div>
-            <div style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background: white;">
+            <div style="border: 1px solid #ddd; padding: 20px; border-radius: 10px; background: white; width: 250px;">
+                <div style="height: 150px; background: #eee; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: #999;">Image Coming Soon</div>
                 <h2>Trendy T-Shirt</h2>
                 <p>Price: ₹599</p>
                 <button style="background: black; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Order Now</button>
@@ -41,27 +41,24 @@
         </div>
     </div>
 
-    <!-- JavaScript logic -->
     <script>
-          <script>
         function checkLogin() {
-            var email = document.getElementById('email').value;
-            var pass = document.getElementById('pass').value;
+            var emailInput = document.getElementById('email').value;
+            var passInput = document.getElementById('pass').value;
 
-            // Inga dhaan neenga unga Email & Password set panreenga
-            var correctEmail = "admin@gmail.com"; 
+            // Inga dhaan namma password set panrom
+            var correctEmail = "admin@gmail.com";
             var correctPass = "1234";
 
-            if(email === correctEmail && pass === correctPass) {
+            if (emailInput === correctEmail && passInput === correctPass) {
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('product-page').style.display = 'block';
-                alert("Login Success! Welcome to Loyal Fashion.");
+                alert("Welcome, Login Success!");
             } else {
-                alert("Incorrect ID or Password! Please try again.");
+                alert("Incorrect Email or Password!");
             }
         }
     </script>
-
 
 </body>
 </html>
