@@ -3,34 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Loyal Fashion</title>
+    <title>Admin - Loyal Fashion</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .admin-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #0056b3; }
-        #status { text-align: center; margin-top: 15px; font-weight: bold; }
+        body { font-family: sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 320px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #status { text-align: center; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="admin-box">
-    <h2>Add New Product</h2>
-    <input type="text" id="pName" placeholder="Product Name (e.g. Cotton T-Shirt)">
-    <input type="number" id="pPrice" placeholder="Price (e.g. 599)">
-    <input type="text" id="pImage" placeholder="Image Link (URL)">
+<div class="box">
+    <h3>Add New Product</h3>
+    <input type="text" id="pName" placeholder="Product Name">
+    <input type="number" id="pPrice" placeholder="Price">
+    <input type="text" id="pImage" placeholder="Image URL">
     <button onclick="uploadProduct()">Post Product</button>
     <p id="status"></p>
 </div>
 
-<!-- Firebase SDK via CDN (Browser-ku idhu dhaan correct) -->
 <script type="module">
+  // Firebase SDK using CDN (Browser-ku idhu dhaan mukkiyam)
   import { initializeApp } from "https://www.gstatic.com";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com";
 
-  // Unga Firebase Config (Image-la irundhu nanne fill panniten)
   const firebaseConfig = {
     apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
     authDomain: "e-commerce-wepsite.firebaseapp.com",
@@ -41,26 +38,24 @@
     measurementId: "G-3MDR9346WP"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Function to Upload Product
   window.uploadProduct = async function() {
     const name = document.getElementById('pName').value;
     const price = document.getElementById('pPrice').value;
     const image = document.getElementById('pImage').value;
     const statusMsg = document.getElementById('status');
 
-    if(name == "" || price == "" || image == "") {
+    if(!name || !price || !image) {
+        statusMsg.innerText = "Please fill all fields! ❌";
         statusMsg.style.color = "red";
-        statusMsg.innerText = "Please fill all details!";
         return;
     }
 
     try {
+      statusMsg.innerText = "Posting... ⏳";
       statusMsg.style.color = "blue";
-      statusMsg.innerText = "Posting... Please wait.";
       
       await addDoc(collection(db, "products"), {
         productName: name,
@@ -69,21 +64,20 @@
         createdAt: new Date()
       });
 
-      statusMsg.style.color = "green";
       statusMsg.innerText = "Product Added Successfully! ✅";
+      statusMsg.style.color = "green";
       
-      // Clear inputs
+      // Inputs clear panna
       document.getElementById('pName').value = "";
       document.getElementById('pPrice').value = "";
       document.getElementById('pImage').value = "";
       
     } catch (e) {
+      statusMsg.innerText = "Error: " + e.message;
       statusMsg.style.color = "red";
-      statusMsg.innerText = "Error: Firestore Rules check pannunga!";
-      console.error("Error: ", e);
+      console.error(e);
     }
   }
 </script>
-
 </body>
 </html>
