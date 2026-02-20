@@ -3,86 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Loyal Fashion</title>
+    <title>Loyal Fashion - Admin Dashboard</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; }
-        h3 { text-align: center; color: #333; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        button:hover { background: #0056b3; }
-        #status { text-align: center; margin-top: 15px; font-weight: bold; font-size: 14px; }
+        body { background-color: #f1f3f6; font-family: sans-serif; margin: 0; padding: 0; }
+        .header { background-color: #000; color: white; padding: 15px 50px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+        
+        /* ADMIN FORM STYLE */
+        .admin-panel { background: white; padding: 30px; margin: 20px 50px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .admin-panel h2 { margin-top: 0; color: #333; }
+        .input-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; min-width: 200px; }
+        .post-btn { background: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .post-btn:hover { background: #0056b3; }
+
+        /* PRODUCT GRID (Same as Buyer Page) */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; padding: 20px 50px; }
+        .product-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); text-align: center; }
+        .product-card img { width: 100%; height: 260px; object-fit: cover; border-radius: 10px; }
+        #status { font-weight: bold; margin-top: 10px; }
     </style>
-    
-    <!-- FIREBASE CONNECTION (Fixed Scripts) -->
-    <script src="https://www.gstatic.com"></script>
-    <script src="https://www.gstatic.com"></script>
 </head>
 <body>
 
-<div class="box">
-    <h3>Add New Product</h3>
-    <input type="text" id="pName" placeholder="Product Name">
-    <input type="number" id="pPrice" placeholder="Price">
-    <input type="text" id="pImage" placeholder="Image URL (Full Link)">
-    <button id="postBtn">Post Product</button>
-    <p id="status"></p>
-</div>
+    <!-- 1. HEADER (Same as Buyer Page) -->
+    <div class="header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="image.png" style="width: 40px; border-radius: 50%;">
+            <span style="font-weight: bold; font-size: 20px; letter-spacing: 1px;">LOYAL FASHION (ADMIN)</span>
+        </div>
+        <button onclick="location.href='index.html'" style="background: white; color: black; border: none; padding: 8px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">View Live Site</button>
+    </div>
 
-<script>
-  // Unga Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
-    authDomain: "e-commerce-wepsite.firebaseapp.com",
-    projectId: "e-commerce-wepsite",
-    storageBucket: "e-commerce-wepsite.firebasestorage.app",
-    messagingSenderId: "394408704286",
-    appId: "1:394408704286:web:9ad690a946b225ab20f10f"
-  };
+    <!-- 2. ADMIN POST SECTION -->
+    <div class="admin-panel">
+        <h2>Add New Product to Store</h2>
+        <div class="input-group">
+            <input type="text" id="pName" placeholder="Product Name">
+            <input type="number" id="pPrice" placeholder="Price (₹)">
+            <input type="text" id="pImage" placeholder="Image URL (Direct Link)">
+            <button class="post-btn" id="postBtn">Post Product</button>
+        </div>
+        <p id="status"></p>
+    </div>
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    <!-- 3. LIVE PREVIEW (Buyer Page maathiri theriyum) -->
+    <div style="padding: 0 50px;"><h2 style="color: #333;">Live Store Preview</h2></div>
+    <div id="product-list" class="product-grid">
+        <p style="text-align: center; width: 100%;">Loading products...</p>
+    </div>
 
-  // Button logic
-  document.getElementById('postBtn').onclick = async function() {
-    const name = document.getElementById('pName').value;
-    const price = document.getElementById('pPrice').value;
-    const image = document.getElementById('pImage').value;
-    const statusMsg = document.getElementById('status');
+    <!-- FIREBASE LIBRARIES -->
+    <script src="https://www.gstatic.com"></script>
+    <script src="https://www.gstatic.com"></script>
 
-    if(!name || !price || !image) {
-        statusMsg.innerText = "Please fill all fields! ❌";
-        statusMsg.style.color = "red";
-        return;
-    }
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
+            authDomain: "e-commerce-wepsite.firebaseapp.com",
+            projectId: "e-commerce-wepsite",
+            storageBucket: "e-commerce-wepsite.firebasestorage.app",
+            messagingSenderId: "394408704286",
+            appId: "1:394408704286:web:9ad690a946b225ab20f10f"
+        };
 
-    try {
-      statusMsg.innerText = "Posting... ⏳";
-      statusMsg.style.color = "blue";
-      
-      await db.collection("products").add({
-        productName: name,
-        price: price,
-        imageUrl: image,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-      statusMsg.innerText = "Product Added Successfully! ✅";
-      statusMsg.style.color = "green";
-      
-      // Clear inputs
-      document.getElementById('pName').value = "";
-      document.getElementById('pPrice').value = "";
-      document.getElementById('pImage').value = "";
-      
-    } catch (e) {
-      statusMsg.innerText = "Error: Permission Denied! Check Rules.";
-      statusMsg.style.color = "red";
-      console.error(e);
-    }
-  };
-</script>
+        // --- POST LOGIC ---
+        document.getElementById('postBtn').onclick = async function() {
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            const image = document.getElementById('pImage').value;
+            const statusMsg = document.getElementById('status');
 
+            if(!name || !price || !image) {
+                statusMsg.innerText = "Please fill all fields! ❌";
+                statusMsg.style.color = "red";
+                return;
+            }
+
+            try {
+                statusMsg.innerText = "Posting... ⏳";
+                await db.collection("products").add({
+                    productName: name,
+                    price: price,
+                    imageUrl: image,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                statusMsg.innerText = "Product Added Successfully! ✅";
+                statusMsg.style.color = "green";
+                loadProducts(); // Refresh list after posting
+            } catch (e) {
+                statusMsg.innerText = "Error: Check Console.";
+                console.error(e);
+            }
+        };
+
+        // --- FETCH LOGIC (Buyer Page maathiri) ---
+        async function loadProducts() {
+            const snapshot = await db.collection("products").orderBy("createdAt", "desc").get();
+            const list = document.getElementById('product-list');
+            list.innerHTML = ""; 
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                list.innerHTML += `
+                    <div class="product-card">
+                        <img src="${data.imageUrl}" alt="${data.productName}">
+                        <h3>${data.productName}</h3>
+                        <p style="font-weight: bold; font-size: 20px; color: #000;">₹${data.price}</p>
+                        <button style="width:100%; padding:10px; background:#f0f0f0; border:1px solid #ddd; border-radius:5px; font-weight:bold;">Admin Preview</button>
+                    </div>
+                `;
+            });
+        }
+        window.onload = loadProducts;
+    </script>
 </body>
 </html>
