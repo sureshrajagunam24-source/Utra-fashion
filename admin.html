@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Loyal Fashion</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .admin-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
+        button:hover { background-color: #0056b3; }
+        #status { text-align: center; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="admin-box">
+    <h2>Add New Product</h2>
+    <input type="text" id="pName" placeholder="Product Name (e.g. Cotton T-Shirt)">
+    <input type="number" id="pPrice" placeholder="Price (e.g. 599)">
+    <input type="text" id="pImage" placeholder="Image Link (URL)">
+    <button onclick="uploadProduct()">Post Product</button>
+    <p id="status"></p>
+</div>
+
+<!-- Firebase SDK via CDN (Browser-ku idhu dhaan correct) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com";
+
+  // Unga Firebase Config (Image-la irundhu nanne fill panniten)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
+    authDomain: "e-commerce-wepsite.firebaseapp.com",
+    projectId: "e-commerce-wepsite",
+    storageBucket: "e-commerce-wepsite.firebasestorage.app",
+    messagingSenderId: "394408704286",
+    appId: "1:394408704286:web:9ad690a946b225ab20f10f",
+    measurementId: "G-3MDR9346WP"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Function to Upload Product
+  window.uploadProduct = async function() {
+    const name = document.getElementById('pName').value;
+    const price = document.getElementById('pPrice').value;
+    const image = document.getElementById('pImage').value;
+    const statusMsg = document.getElementById('status');
+
+    if(name == "" || price == "" || image == "") {
+        statusMsg.style.color = "red";
+        statusMsg.innerText = "Please fill all details!";
+        return;
+    }
+
+    try {
+      statusMsg.style.color = "blue";
+      statusMsg.innerText = "Posting... Please wait.";
+      
+      await addDoc(collection(db, "products"), {
+        productName: name,
+        price: price,
+        imageUrl: image,
+        createdAt: new Date()
+      });
+
+      statusMsg.style.color = "green";
+      statusMsg.innerText = "Product Added Successfully! ✅";
+      
+      // Clear inputs
+      document.getElementById('pName').value = "";
+      document.getElementById('pPrice').value = "";
+      document.getElementById('pImage').value = "";
+      
+    } catch (e) {
+      statusMsg.style.color = "red";
+      statusMsg.innerText = "Error: Firestore Rules check pannunga!";
+      console.error("Error: ", e);
+    }
+  }
+</script>
+
+</body>
+</html>
