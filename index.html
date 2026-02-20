@@ -3,70 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loyal Fashion - Home</title>
+    <title>Loyal Fashion - Premium Store</title>
 </head>
 <body style="background-color: #f1f3f6; font-family: sans-serif; margin: 0; padding: 0;">
 
-    <!-- 1. HOME PAGE (Idhu dhaan ippo modhala theriyum) -->
-    <div id="product-page" style="display: block;">
-        <!-- HEADER -->
+    <!-- 1. HOME PAGE HEADER -->
+    <div id="home-page" style="display: block;">
         <div style="background-color: #000; color: white; padding: 15px 50px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <img src="image.png" style="width: 40px; border-radius: 50%;">
                 <span style="font-weight: bold; font-size: 20px; letter-spacing: 1px;">LOYAL FASHION</span>
             </div>
             <div style="flex: 0.5;">
-                <input type="text" placeholder="Search for products..." style="width: 100%; padding: 10px; border-radius: 5px; border: none; outline: none;">
+                <input type="text" placeholder="Search for premium shirts, jeans..." style="width: 100%; padding: 10px; border-radius: 5px; border: none; outline: none;">
             </div>
-            <!-- RIGHT SIDE LOGIN/SIGNUP BUTTONS -->
-            <div style="display: flex; gap: 15px;">
+            <!-- LOGIN / LOGOUT BUTTON SECTION -->
+            <div id="auth-btn-section" style="display: flex; gap: 15px;">
                 <button onclick="openAuth()" style="background: white; color: black; border: none; padding: 8px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">Login / Sign Up</button>
-                <span style="font-weight: bold; margin-top: 5px;">Cart 🛒</span>
             </div>
         </div>
 
-        <!-- BANNER & PRODUCTS -->
+        <!-- MAIN CONTENT -->
         <div style="padding: 20px 50px;">
             <div style="width: 100%; height: 200px; background: linear-gradient(to right, #000, #434343); border-radius: 15px; margin-bottom: 30px; display: flex; align-items: center; justify-content: center; color: #ffd700; flex-direction: column; text-align: center;">
                 <h1 style="font-size: 35px; margin: 0;">BIG BILLION SALE!</h1>
-                <p style="font-size: 16px; color: white;">Up to 70% Off on Premium Collections</p>
+                <p style="font-size: 16px; color: white;">Premium Collections Starting from ₹499</p>
             </div>
 
-            <h2>Top Recommendations</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px;">
+            <h2 style="margin-bottom: 25px;">Our Collections</h2>
+            <div id="product-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px;">
+                
+                <!-- Product 1: Shirt -->
                 <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center;">
                     <img src="https://images.unsplash.com" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
-                    <h3>Premium Casual Shirt</h3>
-                    <p style="font-weight: bold; font-size: 20px; margin-bottom: 15px;">₹799</p>
-                    <button onclick="window.open('https://wa.me, I want to buy Casual Shirt')" style="width: 100%; background: #25D366; color: white; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer;">Order via WhatsApp</button>
+                    <h3 style="font-size: 17px; margin: 10px 0;">Premium Casual Shirt</h3>
+                    <p style="font-weight: bold; font-size: 18px; color: #333;">₹799</p>
+                    <button onclick="orderWhatsApp('Premium Casual Shirt')" style="width: 100%; background: #25D366; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">Order on WhatsApp</button>
+                </div>
+
+                <!-- Product 2: T-Shirt -->
+                <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center;">
+                    <img src="https://images.unsplash.com" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+                    <h3 style="font-size: 17px; margin: 10px 0;">Trendy Cotton T-Shirt</h3>
+                    <p style="font-weight: bold; font-size: 18px; color: #333;">₹549</p>
+                    <button onclick="orderWhatsApp('Trendy Cotton T-Shirt')" style="width: 100%; background: #25D366; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">Order on WhatsApp</button>
+                </div>
+
+                <!-- Product 3: Jeans -->
+                <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center;">
+                    <img src="https://images.unsplash.com" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+                    <h3 style="font-size: 17px; margin: 10px 0;">Slim Fit Blue Jeans</h3>
+                    <p style="font-weight: bold; font-size: 18px; color: #333;">₹1299</p>
+                    <button onclick="orderWhatsApp('Slim Fit Blue Jeans')" style="width: 100%; background: #25D366; color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">Order on WhatsApp</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 2. LOGIN & REGISTER CONTAINER (Hidden by default) -->
+    <!-- 2. AUTH MODAL (Login/Sign Up Pop-up) -->
     <div id="auth-container" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;">
-        <div style="display: flex; width: 850px; height: 500px; background: white; border-radius: 15px; overflow: hidden; position: relative;">
-            <button onclick="closeAuth()" style="position: absolute; right: 10px; top: 10px; border: none; background: none; font-size: 20px; cursor: pointer; font-weight: bold;">X</button>
-            <!-- Left Black Section -->
+        <div style="display: flex; width: 800px; height: 480px; background: white; border-radius: 15px; overflow: hidden; position: relative;">
+            <button onclick="closeAuth()" style="position: absolute; right: 15px; top: 15px; border: none; background: #eee; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold;">X</button>
+            
             <div style="flex: 0.4; background-color: #000; padding: 40px; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                <img src="image.png" style="width: 120px; border-radius: 50%; margin-bottom: 20px;">
-                <h1 style="font-size: 24px; color: #ffd700;">LOYAL FASHION</h1>
+                <img src="image.png" style="width: 100px; border-radius: 50%; margin-bottom: 20px;">
+                <h1 style="font-size: 22px; color: #ffd700; letter-spacing: 2px;">LOYAL FASHION</h1>
             </div>
-            <!-- Right Form Section -->
+
+            <!-- Form: Login -->
             <div id="login-form" style="flex: 0.6; padding: 50px;">
-                <h2>Login</h2>
-                <input type="text" id="login-email" placeholder="Email" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; margin-bottom: 25px; outline: none;">
-                <input type="password" id="login-pass" placeholder="Password" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; margin-bottom: 35px; outline: none;">
+                <h2 style="margin-bottom: 30px;">Login</h2>
+                <input type="text" id="l-email" placeholder="Email" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; margin-bottom: 25px; outline: none;">
+                <input type="password" id="l-pass" placeholder="Password" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; margin-bottom: 35px; outline: none;">
                 <button onclick="checkLogin()" style="width: 100%; background: #000; color: white; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">LOGIN</button>
-                <p style="text-align: center; font-size: 14px; margin-top: 20px;">New User? <a href="#" onclick="toggleAuth('signup')">Sign Up</a></p>
+                <p style="text-align: center; font-size: 14px; margin-top: 25px; color: #666;">New User? <a href="javascript:void(0)" onclick="toggleAuth('signup')" style="color: blue; text-decoration: none; font-weight: bold;">Register Here</a></p>
             </div>
+
+            <!-- Form: Register -->
             <div id="signup-form" style="flex: 0.6; padding: 50px; display: none;">
-                <h2>Sign Up</h2>
-                <input type="text" id="reg-email" placeholder="Email" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; margin-bottom: 25px; outline: none;">
-                <input type="password" id="reg-pass" placeholder="Password" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; margin-bottom: 35px; outline: none;">
-                <button onclick="registerUser()" style="width: 100%; background: #ffd700; color: #000; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">REGISTER</button>
-                <p style="text-align: center; font-size: 14px; margin-top: 20px;">Have account? <a href="#" onclick="toggleAuth('login')">Login</a></p>
+                <h2 style="margin-bottom: 30px;">New User Registration</h2>
+                <input type="text" id="r-email" placeholder="Create Email" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; margin-bottom: 25px; outline: none;">
+                <input type="password" id="r-pass" placeholder="Create Password" style="width: 100%; border: none; border-bottom: 2px solid #eee; padding: 12px 0; margin-bottom: 35px; outline: none;">
+                <button onclick="registerUser()" style="width: 100%; background: #ffd700; color: #000; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">CREATE ACCOUNT</button>
+                <p style="text-align: center; font-size: 14px; margin-top: 25px;">Already have an account? <a href="javascript:void(0)" onclick="toggleAuth('login')" style="color: blue; text-decoration: none; font-weight: bold;">Login</a></p>
             </div>
         </div>
     </div>
@@ -74,23 +93,29 @@
     <script>
         function openAuth() { document.getElementById('auth-container').style.display = 'flex'; }
         function closeAuth() { document.getElementById('auth-container').style.display = 'none'; }
-        function toggleAuth(type) {
-            document.getElementById('login-form').style.display = type === 'signup' ? 'none' : 'block';
-            document.getElementById('signup-form').style.display = type === 'signup' ? 'block' : 'none';
+        function toggleAuth(t) {
+            document.getElementById('login-form').style.display = t === 'signup' ? 'none' : 'block';
+            document.getElementById('signup-form').style.display = t === 'signup' ? 'block' : 'none';
         }
         function registerUser() {
-            localStorage.setItem('userEmail', document.getElementById('reg-email').value);
-            localStorage.setItem('userPass', document.getElementById('reg-pass').value);
-            alert("Registered! Please Login.");
+            localStorage.setItem('uE', document.getElementById('r-email').value);
+            localStorage.setItem('uP', document.getElementById('r-pass').value);
+            alert("Registration Successful! Please Login.");
             toggleAuth('login');
         }
         function checkLogin() {
-            if (document.getElementById('login-email').value === localStorage.getItem('userEmail') && 
-                document.getElementById('login-pass').value === localStorage.getItem('userPass')) {
-                alert("Login Success!");
+            if(document.getElementById('l-email').value === localStorage.getItem('uE') && 
+               document.getElementById('l-pass').value === localStorage.getItem('uP')) {
+                alert("Login Success! Welcome back.");
                 closeAuth();
-            } else { alert("Wrong Credentials!"); }
+                document.getElementById('auth-btn-section').innerHTML = '<button onclick="location.reload()" style="background: #ff4d4d; color: white; border: none; padding: 8px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">Logout</button>';
+            } else { alert("Incorrect Credentials!"); }
+        }
+        function orderWhatsApp(product) {
+            // Replace with your actual number
+            window.open('https://wa.me' + product);
         }
     </script>
 </body>
 </html>
+
