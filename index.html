@@ -124,6 +124,53 @@
             window.open('https://wa.me' + product);
         }
     </script>
+    <!-- Firebase SDK & Product Loading Code -->
+<script src="https://www.gstatic.com"></script>
+<script src="https://www.gstatic.com"></script>
+
+<script>
+  // Firebase Config (Already connected to your project)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
+    authDomain: "e-commerce-wepsite.firebaseapp.com",
+    projectId: "e-commerce-wepsite",
+    storageBucket: "e-commerce-wepsite.firebasestorage.app",
+    messagingSenderId: "394408704286",
+    appId: "1:394408704286:web:9ad690a946b225ab20f10f"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Products-ai automatic-ah load panna
+  async function loadProducts() {
+    const snapshot = await db.collection("products").orderBy("createdAt", "desc").get();
+    
+    // Unga HTML-la products enga varanumo andha area (id/class)
+    const container = document.getElementById('product-list') || document.querySelector('.product-container'); 
+    
+    if(container) {
+        container.innerHTML = ""; // Palaya static products-ai remove panna
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          container.innerHTML += `
+            <div class="product-card" style="border:1px solid #ddd; padding:10px; margin:10px; border-radius:8px; text-align:center;">
+              <img src="${data.imageUrl}" alt="${data.productName}" style="width:100%; max-height:200px; object-fit:cover; border-radius:5px;">
+              <h3>${data.productName}</h3>
+              <p>Price: ₹${data.price}</p>
+              <button onclick="orderWhatsApp('${data.productName} - ₹${data.price}')" style="background:#25D366; color:white; padding:10px; border:none; border-radius:5px; cursor:pointer; width:100%;">Order on WhatsApp</button>
+            </div>
+          `;
+        });
+    }
+  }
+
+  // Page load aagumpodhu products-ai fetch panna solrom
+  window.onload = function() {
+    loadProducts();
+  };
+</script>
+
 </body>
 </html>
 
