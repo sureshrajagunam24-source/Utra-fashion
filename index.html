@@ -26,7 +26,7 @@
         <div style="flex: 0.5;">
             <input type="text" placeholder="Search for premium shirts, jeans..." style="width: 100%; padding: 10px; border-radius: 5px; border: none; outline: none;">
         </div>
-        <button style="background: white; color: black; border: none; padding: 8px 20px; border-radius: 5px; font-weight: bold;">Login</button>
+        <button onclick="location.href='admin.html'" style="background: white; color: black; border: none; padding: 8px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;">Login</button>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -38,18 +38,18 @@
 
         <h2 style="margin-bottom: 25px;">Our Collections</h2>
         
-        <!-- INGA THAAN PRODUCTS AUTOMATIC-AH VARUM -->
+        <!-- PRODUCT LIST CONTAINER -->
         <div id="product-list" class="product-grid">
             <p style="text-align: center; width: 100%;">Loading Products...</p>
         </div>
     </div>
 
-    <!-- FIREBASE LIBRARIES (SCRIPTS FIXED HERE) -->
+    <!-- FIREBASE LIBRARIES (Fixed Script Links) -->
     <script src="https://www.gstatic.com"></script>
     <script src="https://www.gstatic.com"></script>
 
     <script>
-        // Unga Firebase Config
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
             authDomain: "e-commerce-wepsite.firebaseapp.com",
@@ -63,42 +63,42 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Products-ai load panna
-        async function loadProducts() {
-            try {
-                // Real-time updates-ku 'onSnapshot' use pannuvom, appo thaan admin-la post panna udane refresh pannaama theriyum
-                db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
-                    const list = document.getElementById('product-list');
-                    list.innerHTML = ""; 
+        // Real-time listener for Products
+        function loadProducts() {
+            const list = document.getElementById('product-list');
+            
+            // onSnapshot logic ensures real-time display without refresh
+            db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+                list.innerHTML = ""; 
 
-                    if (snapshot.empty) {
-                        list.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>No products found!</p>";
-                        return;
-                    }
+                if (snapshot.empty) {
+                    list.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>No products found!</p>";
+                    return;
+                }
 
-                    snapshot.forEach((doc) => {
-                        const data = doc.data();
-                        // Database-la field name 'imageUrl' correct-ah irukkanu check pannunga
-                        list.innerHTML += `
-                            <div class="product-card">
-                                <img src="${data.imageUrl}" alt="${data.productName}">
-                                <h3 style="font-size: 18px; margin: 15px 0 5px 0;">${data.productName}</h3>
-                                <p style="font-weight: bold; font-size: 22px; color: #000; margin-bottom: 15px;">₹${data.price}</p>
-                                <button class="buy-btn" onclick="placeOrder('${data.productName}')">Buy Now</button>
-                            </div>
-                        `;
-                    });
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // Maps database fields 'imageUrl', 'productName', and 'price' to the UI
+                    list.innerHTML += `
+                        <div class="product-card">
+                            <img src="${data.imageUrl}" alt="${data.productName}">
+                            <h3 style="font-size: 18px; margin: 15px 0 5px 0;">${data.productName}</h3>
+                            <p style="font-weight: bold; font-size: 22px; color: #000; margin-bottom: 15px;">₹${data.price}</p>
+                            <button class="buy-btn" onclick="placeOrder('${data.productName}')">Buy Now</button>
+                        </div>
+                    `;
                 });
-            } catch (e) {
-                console.error("Error loading products: ", e);
-            }
+            }, (error) => {
+                console.error("Firebase Error: ", error);
+                list.innerHTML = "<p style='text-align:center;'>Error connecting to store.</p>";
+            });
         }
 
-        // WhatsApp illama simple Order message
         function placeOrder(name) {
             alert("Order Placed Successfully for: " + name + " ✅\nOur team will contact you soon for payment!");
         }
 
+        // Run on page load
         window.onload = loadProducts;
     </script>
 </body>
