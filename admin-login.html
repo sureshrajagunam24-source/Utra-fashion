@@ -4,78 +4,78 @@
 <title>Admin Login - Loyal Fashion</title>
 <style>
 body{
-background:#f2f4f8;
-font-family:'Segoe UI', sans-serif;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
+    background:#f2f4f8;
+    font-family:'Segoe UI', sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
 }
 
 .card{
-background:white;
-padding:35px;
-border-radius:15px;
-box-shadow:0 15px 30px rgba(0,0,0,0.1);
-width:350px;
-text-align:center;
+    background:white;
+    padding:35px;
+    border-radius:15px;
+    box-shadow:0 15px 30px rgba(0,0,0,0.1);
+    width:350px;
+    text-align:center;
 }
 
 .logo{
-width:70px;
-height:70px;
-border-radius:50%;
-margin-bottom:10px;
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    margin-bottom:10px;
 }
 
 h2{
-margin:10px 0 20px 0;
+    margin:10px 0 20px 0;
 }
 
 input{
-width:100%;
-padding:12px;
-margin:10px 0;
-border-radius:8px;
-border:1px solid #ddd;
-outline:none;
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border-radius:8px;
+    border:1px solid #ddd;
+    outline:none;
 }
 
 .password-wrapper{
-position:relative;
+    position:relative;
 }
 
 .show-btn{
-position:absolute;
-right:10px;
-top:50%;
-transform:translateY(-50%);
-cursor:pointer;
-font-size:13px;
-color:#007bff;
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    font-size:13px;
+    color:#007bff;
 }
 
 button{
-width:100%;
-padding:12px;
-background:black;
-color:white;
-border:none;
-border-radius:8px;
-font-weight:bold;
-cursor:pointer;
-margin-top:15px;
+    width:100%;
+    padding:12px;
+    background:black;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:15px;
 }
 
 button:hover{
-opacity:0.9;
+    opacity:0.9;
 }
 
 #status{
-color:red;
-font-size:14px;
-margin-top:10px;
+    color:red;
+    font-size:14px;
+    margin-top:10px;
 }
 </style>
 </head>
@@ -84,7 +84,7 @@ margin-top:10px;
 <div class="card">
 
 <!-- COMPANY LOGO -->
-<img src="logo.png" class="logo">
+<img src="logo.png" class="logo" alt="Logo">
 
 <h2>LOYAL FASHION</h2>
 <p style="color:#777;font-size:14px;">Admin Panel Login</p>
@@ -92,8 +92,8 @@ margin-top:10px;
 <input type="email" id="email" placeholder="Admin Email">
 
 <div class="password-wrapper">
-<input type="password" id="password" placeholder="Password">
-<span class="show-btn" onclick="togglePassword()">Show</span>
+    <input type="password" id="password" placeholder="Password">
+    <span class="show-btn" onclick="togglePassword()">Show</span>
 </div>
 
 <button onclick="login()">Login</button>
@@ -107,11 +107,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebas
 import { getAuth, signInWithEmailAndPassword } 
 from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
+// ✅ Correct Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
   authDomain: "e-commerce-wepsite.firebaseapp.com",
   projectId: "e-commerce-wepsite",
-  storageBucket: "e-commerce-wepsite.firebasestorage.app",
+  storageBucket: "e-commerce-wepsite.appspot.com",
   messagingSenderId: "394408704286",
   appId: "1:394408704286:web:9ad690a946b225ab20f10f",
   measurementId: "G-3MDR9346WP"
@@ -121,30 +122,37 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 window.login = async function(){
-    const email=document.getElementById("email").value;
-    const pass=document.getElementById("password").value;
-    const status=document.getElementById("status");
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+    const status = document.getElementById("status");
+
+    if(email === "" || pass === ""){
+        status.innerText = "Please fill all fields ❌";
+        return;
+    }
 
     try{
-        await signInWithEmailAndPassword(auth,email,pass);
+        await signInWithEmailAndPassword(auth, email, pass);
+        // ✅ Redirect after successful login
         window.location.href="admin.html";
     }catch(err){
-        status.innerText="Invalid Login ❌";
+        console.error(err);
+        status.innerText = "Invalid Login ❌";
     }
 }
 </script>
 
 <script>
 function togglePassword(){
-    const pass=document.getElementById("password");
-    const btn=document.querySelector(".show-btn");
+    const pass = document.getElementById("password");
+    const btn = document.querySelector(".show-btn");
 
-    if(pass.type==="password"){
-        pass.type="text";
-        btn.innerText="Hide";
+    if(pass.type === "password"){
+        pass.type = "text";
+        btn.innerText = "Hide";
     }else{
-        pass.type="password";
-        btn.innerText="Show";
+        pass.type = "password";
+        btn.innerText = "Show";
     }
 }
 </script>
