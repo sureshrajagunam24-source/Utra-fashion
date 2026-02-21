@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Login - Loyal Fashion</title>
+<title>Admin Login</title>
 <style>
 body{
 background:#f2f4f8;
@@ -70,9 +70,8 @@ window.login = async function(){
     try{
         const userCred = await signInWithEmailAndPassword(auth,email,pass);
 
-        // 🔐 ADMIN EMAIL CHECK
         if(userCred.user.email === "sureshrajagunam24@gmail.com"){
-            window.location.href="admin.html";
+            window.location.href="admin-dashboard.html";
         }else{
             status.innerText="Access Denied ❌ Not Admin";
             auth.signOut();
