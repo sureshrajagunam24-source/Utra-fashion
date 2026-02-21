@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+<style>
+body{font-family:Segoe UI;margin:0;background:#f8f9fa;}
+.header{
+background:black;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+.container{
+padding:40px;
+max-width:500px;
+margin:auto;
+}
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border-radius:8px;
+border:1px solid #ddd;
+}
+button{
+width:100%;
+padding:12px;
+background:#007bff;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+.logout{
+background:red;
+margin-top:20px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h2>Admin Dashboard</h2>
+<button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+<h3>Add Product</h3>
+<input type="text" id="pName" placeholder="Product Name">
+<input type="number" id="pPrice" placeholder="Price ₹">
+<input type="file" id="pImage" accept="image/*">
+<button onclick="uploadProduct()">Post Product</button>
+<p id="status"></p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } 
+from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
+  authDomain: "e-commerce-wepsite.firebaseapp.com",
+  projectId: "e-commerce-wepsite",
+  storageBucket: "e-commerce-wepsite.appspot.com",
+  messagingSenderId: "394408704286",
+  appId: "1:394408704286:web:9ad690a946b225ab20f10f"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// 🔐 Protect page
+onAuthStateChanged(auth, (user) => {
+    if (!user || user.email !== "sureshrajagunam24@gmail.com") {
+        window.location.href = "admin-login.html";
+    }
+});
+
+window.logout = function(){
+    signOut(auth).then(()=>{
+        window.location.href="admin-login.html";
+    });
+}
+
+window.uploadProduct = async function(){
+    const name=document.getElementById("pName").value;
+    const price=document.getElementById("pPrice").value;
+    const file=document.getElementById("pImage").files[0];
+    const status=document.getElementById("status");
+
+    if(!name || !price || !file){
+        alert("Fill all fields!");
+        return;
+    }
+
+    const reader=new FileReader();
+    reader.readAsDataURL(file);
+
+    reader.onload=async()=>{
+        await addDoc(collection(db,"products"),{
+            productName:name,
+            price:Number(price),
+            imageUrl:reader.result,
+            createdAt:serverTimestamp()
+        });
+        status.innerText="Product Added Successfully ✅";
+    }
+}
+</script>
+
+</body>
+</html>
