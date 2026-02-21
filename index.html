@@ -40,11 +40,11 @@
         
         <!-- PRODUCT LIST CONTAINER -->
         <div id="product-list" class="product-grid">
-            <p style="text-align: center; width: 100%;">Loading Products...</p>
+            <p style="text-align: center; width: 100%;">✨ Fetching latest styles for you...</p>
         </div>
     </div>
 
-    <!-- FIREBASE LIBRARIES (Fixed Script Links) -->
+    <!-- FIREBASE LIBRARIES (Fixed Scripts) -->
     <script src="https://www.gstatic.com"></script>
     <script src="https://www.gstatic.com"></script>
 
@@ -63,11 +63,11 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Real-time listener for Products
-        function loadProducts() {
+        // Real-time listener for Products (Automatic List)
+        function listenToProducts() {
             const list = document.getElementById('product-list');
             
-            // onSnapshot logic ensures real-time display without refresh
+            // onSnapshot ensures real-time updates when you post from Admin
             db.collection("products").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
                 list.innerHTML = ""; 
 
@@ -78,7 +78,7 @@
 
                 snapshot.forEach((doc) => {
                     const data = doc.data();
-                    // Maps database fields 'imageUrl', 'productName', and 'price' to the UI
+                    // Database field 'imageUrl' code-layum match aaganum
                     list.innerHTML += `
                         <div class="product-card">
                             <img src="${data.imageUrl}" alt="${data.productName}">
@@ -90,7 +90,6 @@
                 });
             }, (error) => {
                 console.error("Firebase Error: ", error);
-                list.innerHTML = "<p style='text-align:center;'>Error connecting to store.</p>";
             });
         }
 
@@ -98,8 +97,7 @@
             alert("Order Placed Successfully for: " + name + " ✅\nOur team will contact you soon for payment!");
         }
 
-        // Run on page load
-        window.onload = loadProducts;
+        window.onload = listenToProducts;
     </script>
 </body>
 </html>
