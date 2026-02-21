@@ -11,7 +11,6 @@
         button { width: 100%; padding: 12px; background: #000; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         #admin-dashboard { display: none; width: 450px; text-align: left; }
     </style>
-    <!-- FIREBASE LIBRARIES (Intha Order Mukkiyam) -->
     <script src="https://www.gstatic.com"></script>
     <script src="https://www.gstatic.com"></script>
     <script src="https://www.gstatic.com"></script>
@@ -37,7 +36,9 @@
         <button onclick="uploadProduct()" style="background: #007bff;">Post Product</button>
         <p id="post-status" style="font-weight: bold; text-align: center; margin-top: 10px;"></p>
     </div>
-
+<script src="https://www.gstatic.com"></script>
+<script src="https://www.gstatic.com"></script>
+<script src="https://www.gstatic.com"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
@@ -47,7 +48,6 @@
             messagingSenderId: "394408704286",
             appId: "1:394408704286:web:9ad690a946b225ab20f10f"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
