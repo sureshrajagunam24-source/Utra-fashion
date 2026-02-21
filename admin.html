@@ -1,206 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loyal Fashion - Pro Admin</title>
-    <style>
-        :root { --primary: #000; --accent: #007bff; --bg: #f8f9fa; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; height: 100vh; }
-        
-        /* SIDEBAR */
-        .sidebar { width: 260px; background: var(--primary); color: white; padding: 30px 20px; display: flex; flex-direction: column; }
-        .sidebar h2 { font-size: 20px; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-        .nav-item { padding: 15px; border-radius: 10px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; font-weight: 500; }
-        .nav-item:hover, .active { background: #333; color: #ffd700; }
-        .logout { margin-top: auto; background: #ff4d4d; text-align: center; }
-
-        /* MAIN CONTENT */
-        .main { flex: 1; padding: 40px; overflow-y: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-
-        /* FORM CARD */
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .card h3 { margin-top: 0; margin-bottom: 20px; font-size: 18px; }
-        
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--accent); }
-
-        .post-btn { background: var(--accent); color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; transition: 0.3s; }
-        .post-btn:hover { opacity: 0.9; transform: translateY(-2px); }
-
-        /* PREVIEW AREA */
-        .preview-box { border: 2px dashed #ddd; border-radius: 15px; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fafafa; }
-        #img-preview { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
-
-        /* RECENT TABLE */
-        .table-card { margin-top: 30px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { text-align: left; padding: 15px; background: #f1f1f1; border-radius: 5px; font-size: 14px; }
-        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
-    </style>
+<title>Admin Login - Loyal Fashion</title>
+<style>
+body{
+background:#f2f4f8;
+font-family:Segoe UI;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+.card{
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+width:350px;
+}
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border-radius:6px;
+border:1px solid #ddd;
+}
+button{
+width:100%;
+padding:12px;
+background:black;
+color:white;
+border:none;
+cursor:pointer;
+}
+</style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>LOYAL FASHION</h2>
-        <div class="nav-item active">➕ Add Product</div>
-        <div class="nav-item">📋 Inventory</div>
-        <div class="nav-item">📦 Orders</div>
-        <div class="nav-item logout" onclick="logout()">Logout</div>
-    </div>
-
-    <div class="main">
-        <div class="header">
-            <h1>Admin Dashboard</h1>
-            <p id="user-email" style="color: #666; font-weight: bold;"></p>
-        </div>
-
-        <div class="grid">
-            <!-- POST FORM -->
-            <div class="card">
-                <h3>Post New Product</h3>
-                <input type="text" id="pName" placeholder="Product Name (e.g. Cotton Blue Shirt)">
-                <input type="number" id="pPrice" placeholder="Price (₹)">
-                <input type="file" id="pImage" accept="image/*" onchange="previewImage(event)">
-                <button class="post-btn" id="post-button" onclick="uploadProduct()">🚀 Post Product Now</button>
-                <p id="post-status" style="text-align: center; font-size: 12px; margin-top: 10px;"></p>
-            </div>
-
-            <!-- LIVE PREVIEW -->
-            <div class="card">
-                <h3>Live Preview</h3>
-                <div class="preview-box">
-                    <span id="placeholder-text">Image Preview Area</span>
-                    <img id="img-preview">
-                </div>
-                <div style="margin-top: 15px;">
-                    <b id="prev-name">Product Name</b><br>
-                    <span id="prev-price" style="color: #007bff; font-weight: bold; font-size: 20px;">₹0</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- RECENT ACTIVITY -->
-        <div class="card table-card">
-            <h3>Recent Products</h3>
-            <table id="recent-products">
-                <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="product-list-body">
-                    <!-- Products will load here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="card">
+<h2>Admin Login</h2>
+<input type="email" id="email" placeholder="Admin Email">
+<input type="password" id="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p id="status" style="color:red;"></p>
+</div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com";
-    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, limit, onSnapshot } from "https://www.gstatic.com";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } 
+from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
-        authDomain: "e-commerce-wepsite.firebaseapp.com",
-        projectId: "e-commerce-wepsite",
-        storageBucket: "e-commerce-wepsite.firebasestorage.app",
-        messagingSenderId: "394408704286",
-        appId: "1:394408704286:web:9ad690a946b225ab20f10f"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
+  authDomain: "e-commerce-wepsite.firebaseapp.com",
+  projectId: "e-commerce-wepsite",
+  storageBucket: "e-commerce-wepsite.appspot.com",
+  messagingSenderId: "394408704286",
+  appId: "1:394408704286:web:9ad690a946b225ab20f10f"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-    // AUTH CHECK
-    onAuthStateChanged(auth, (user) => {
-        if (!user || user.email !== "sureshrajagunam24@gmail.com") {
-            window.location.href = "index.html"; 
-        } else {
-            document.getElementById('user-email').innerText = "Logged in: " + user.email;
-            loadRecentProducts();
+window.login = async function(){
+    const email=document.getElementById("email").value;
+    const pass=document.getElementById("password").value;
+    const status=document.getElementById("status");
+
+    try{
+        const userCred = await signInWithEmailAndPassword(auth,email,pass);
+
+        // 🔐 ADMIN EMAIL CHECK
+        if(userCred.user.email === "sureshrajagunam24@gmail.com"){
+            window.location.href="admin.html";
+        }else{
+            status.innerText="Access Denied ❌ Not Admin";
+            auth.signOut();
         }
-    });
 
-    window.logout = () => signOut(auth);
-
-    // IMAGE PREVIEW LOGIC
-    window.previewImage = function(event) {
-        const reader = new FileReader();
-        reader.onload = function() {
-            const output = document.getElementById('img-preview');
-            output.src = reader.result;
-            output.style.display = "block";
-            document.getElementById('placeholder-text').style.display = "none";
-        };
-        reader.readAsDataURL(event.target.files[0]);
-    };
-
-    // UPLOAD LOGIC (Base64)
-    window.uploadProduct = async function() {
-        const name = document.getElementById('pName').value.trim();
-        const price = document.getElementById('pPrice').value.trim();
-        const imageFile = document.getElementById('pImage').files[0];
-        const status = document.getElementById('post-status');
-        const btn = document.getElementById('post-button');
-
-        if(!name || !price || !imageFile) return alert("Fill all fields! ❌");
-
-        const reader = new FileReader();
-        reader.readAsDataURL(imageFile);
-        status.innerText = "Processing Assets... ⏳";
-        btn.disabled = true;
-
-        reader.onload = async () => {
-            try {
-                await addDoc(collection(db, "products"), {
-                    productName: name,
-                    price: Number(price),
-                    imageUrl: reader.result,
-                    createdAt: serverTimestamp()
-                });
-                status.style.color = "green";
-                status.innerText = "Product Posted Successfully ✅";
-                setTimeout(() => location.reload(), 1500);
-            } catch (err) {
-                status.innerText = "Error posting! ❌";
-                btn.disabled = false;
-            }
-        };
-    };
-
-    // RECENT PRODUCTS LIST
-    function loadRecentProducts() {
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(5));
-        onSnapshot(q, (snapshot) => {
-            const body = document.getElementById('product-list-body');
-            body.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                body.innerHTML += `
-                    <tr>
-                        <td><img src="${data.imageUrl}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;"></td>
-                        <td>${data.productName}</td>
-                        <td>₹${data.price}</td>
-                        <td><span style="color:green;">Live</span></td>
-                    </tr>
-                `;
-            });
-        });
+    }catch(err){
+        status.innerText="Invalid Login ❌";
     }
-
-    // LIVE PREVIEW SYNC
-    document.getElementById('pName').oninput = (e) => document.getElementById('prev-name').innerText = e.target.value || "Product Name";
-    document.getElementById('pPrice').oninput = (e) => document.getElementById('prev-price').innerText = "₹" + (e.target.value || "0");
-
+}
 </script>
+
 </body>
 </html>
