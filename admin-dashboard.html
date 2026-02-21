@@ -31,6 +31,7 @@ img.product-img{width:50px;height:50px;border-radius:8px;}
 <div class="sidebar">
     <div class="logo"><img src="image.png" alt="Logo"><h2>LOYAL FASHION</h2></div>
     <div class="nav-item active" onclick="showTab('dashboard')">📊 Dashboard</div>
+    <div class="nav-item" onclick="showTab('addProduct')">➕ Add Product</div>
     <div class="nav-item" onclick="showTab('inventory')">📦 Inventory</div>
     <div class="nav-item logout" onclick="logout()">🚪 Logout</div>
 </div>
@@ -54,18 +55,21 @@ img.product-img{width:50px;height:50px;border-radius:8px;}
       </div>
   </div>
 
-  <!-- Inventory section -->
-  <div id="inventory" class="tab-card" style="display:none;">
-      <h1>Inventory</h1>
+  <!-- Add Product form -->
+  <div id="addProduct" class="tab-card" style="display:none;">
+      <h1>Add New Product</h1>
       <div class="card">
-          <h3>Add / Update Product</h3>
-          <input type="hidden" id="productId">
           <input type="text" id="pName" placeholder="Product Name">
           <input type="number" id="pPrice" placeholder="Price (₹)">
           <input type="file" id="pImage" accept="image/*">
-          <button class="post-btn" onclick="saveProduct()">Save Product</button>
+          <button class="post-btn" onclick="saveProduct()">Upload Product</button>
           <p id="status"></p>
       </div>
+  </div>
+
+  <!-- Inventory section -->
+  <div id="inventory" class="tab-card" style="display:none;">
+      <h1>Inventory</h1>
       <div class="card">
         <h3>Inventory Table</h3>
         <table>
@@ -81,7 +85,7 @@ img.product-img{width:50px;height:50px;border-radius:8px;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
@@ -117,41 +121,28 @@ function showTab(tab){
     event.target.classList.add('active');
 }
 
-/* SAVE / UPDATE PRODUCT */
+/* SAVE PRODUCT */
 window.saveProduct = async function(){
     const name = document.getElementById("pName").value.trim();
     const price = document.getElementById("pPrice").value.trim();
     const file = document.getElementById("pImage").files[0];
     const status = document.getElementById("status");
-    const id = document.getElementById("productId").value;
 
-    if(!name || !price || (!file && !id)){ status.innerText="Fill all fields ❌"; return; }
+    if(!name || !price || !file){ status.innerText="Fill all fields ❌"; return; }
 
-    let imageUrl = "";
-    if(file){
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async ()=>{
-            imageUrl = reader.result;
-            if(id){
-                await setDoc(doc(db,"products",id), {productName:name, price:Number(price), imageUrl:imageUrl, updatedAt:serverTimestamp()});
-                status.innerText="Product updated ✅";
-            } else {
-                await addDoc(collection(db,"products"), {productName:name, price:Number(price), imageUrl:imageUrl, createdAt:serverTimestamp()});
-                status.innerText="Product added ✅";
-            }
-            resetForm();
-            updateDashboardSummary();
-        };
-    } else {
-        await setDoc(doc(db,"products",id), {productName:name, price:Number(price), updatedAt:serverTimestamp()}, {merge:true});
-        status.innerText="Product updated ✅";
-        resetForm();
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async ()=>{
+        await addDoc(collection(db,"products"), {productName:name, price:Number(price), imageUrl:reader.result, createdAt:serverTimestamp()});
+        status.innerText="Product uploaded ✅";
+        document.getElementById("pName").value="";
+        document.getElementById("pPrice").value="";
+        document.getElementById("pImage").value="";
         updateDashboardSummary();
-    }
+    };
 }
 
-/* LOAD PRODUCTS */
+/* LOAD PRODUCTS INTO INVENTORY */
 function loadProducts(){
     const q = collection(db,"products");
     onSnapshot(q,(snapshot)=>{
@@ -166,7 +157,6 @@ function loadProducts(){
                 <td>${data.productName}</td>
                 <td>₹${data.price}</td>
                 <td>
-                    <span class="edit-btn" onclick="editProduct('${id}','${data.productName}',${data.price})">Edit</span>
                     <span class="delete-btn" onclick="deleteProduct('${id}')">Delete</span>
                 </td>
             </tr>`;
@@ -174,27 +164,12 @@ function loadProducts(){
     });
 }
 
-/* EDIT / DELETE */
-window.editProduct = function(id,name,price){
-    document.getElementById("productId").value=id;
-    document.getElementById("pName").value=name;
-    document.getElementById("pPrice").value=price;
-    document.getElementById("status").innerText="Editing product...";
-}
-
+/* DELETE PRODUCT */
 window.deleteProduct = async function(id){
     if(confirm("Are you sure to delete this product?")){
         await deleteDoc(doc(db,"products",id));
         updateDashboardSummary();
     }
-}
-
-/* RESET FORM */
-function resetForm(){
-    document.getElementById("productId").value="";
-    document.getElementById("pName").value="";
-    document.getElementById("pPrice").value="";
-    document.getElementById("pImage").value="";
 }
 
 /* DASHBOARD SUMMARY */
