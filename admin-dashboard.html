@@ -27,6 +27,11 @@ th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;}
 img{width:50px;height: 50px; object-fit: cover; border-radius:8px;}
 .tab{display:none;}
 .tab.active-tab{display:block;}
+
+/* Extra Styles for Buyer Details */
+.buyer-cell { font-size: 13px; line-height: 1.4; }
+.buyer-name { font-weight: bold; color: #ff3f6c; display: block; }
+.buyer-contact { color: #555; font-size: 12px; }
 </style>
 </head>
 
@@ -49,8 +54,8 @@ img{width:50px;height: 50px; object-fit: cover; border-radius:8px;}
 
 <div id="dashboard" class="tab active-tab">
     <div class="card">
-        <h2>Dashboard</h2>
-        <p>Total Products: <span id="total">0</span></p>
+        <h2>Dashboard Overview</h2>
+        <p>Total Products in Store: <span id="total" style="font-weight:bold; color:#007bff;">0</span></p>
     </div>
 </div>
 
@@ -61,13 +66,13 @@ img{width:50px;height: 50px; object-fit: cover; border-radius:8px;}
         <input type="number" id="pPrice" placeholder="Price">
         <input type="file" id="pImage" accept="image/*">
         <button class="post-btn" id="save-btn" onclick="saveProduct()">Save Product</button>
-        <p id="status"></p>
+        <p id="status" style="text-align:center; font-weight:bold; margin-top:10px;"></p>
     </div>
 </div>
 
 <div id="inventory" class="tab">
     <div class="card">
-        <h2>Inventory</h2>
+        <h2>Inventory Control</h2>
         <table>
             <thead>
                 <tr>
@@ -84,14 +89,14 @@ img{width:50px;height: 50px; object-fit: cover; border-radius:8px;}
 
 <div id="orders" class="tab">
     <div class="card">
-        <h2>Buyer Orders</h2>
+        <h2>Buyer Live Orders</h2>
         <table>
             <thead>
                 <tr>
                     <th>Image</th>
                     <th>Product</th>
                     <th>Price</th>
-                    <th>Buyer Email</th>
+                    <th>Buyer & Delivery Info</th>
                 </tr>
             </thead>
             <tbody id="orders-table"></tbody>
@@ -112,7 +117,9 @@ import {
     updateDoc, 
     deleteDoc, 
     onSnapshot,
-    serverTimestamp 
+    serverTimestamp,
+    query,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -130,10 +137,9 @@ const db = getFirestore(app);
 
 let editId = null;
 
-/* AUTH CHECK WITH SESSION PROTECTION */
+/* AUTH CHECK */
 onAuthStateChanged(auth, (user)=>{
     const isAdminFlag = localStorage.getItem("isAdminLoggedIn");
-    
     if(!user || user.email !== "sureshrajagunam24@gmail.com" || isAdminFlag !== "true"){
         window.location.href="admin-login.html";
     } else {
@@ -144,19 +150,15 @@ onAuthStateChanged(auth, (user)=>{
 
 /* TAB SWITCH LOGIC */
 window.showTab = function(tabId){
-    // Hide all tabs
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
-    // Show selected tab
     document.getElementById(tabId).classList.add('active-tab');
-    
-    // Update Sidebar CSS
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('nav-' + tabId).classList.add('active');
 }
 
 /* LOGOUT */
 window.logout = function(){
-    if(confirm("Are you sure you want to logout?")){
+    if(confirm("Logout from Admin Panel?")){
         signOut(auth).then(() => {
             localStorage.removeItem("isAdminLoggedIn");
             window.location.href="admin-login.html";
@@ -171,11 +173,7 @@ window.saveProduct = async function(){
     const file = document.getElementById("pImage").files[0];
     const status = document.getElementById("status");
 
-    if(!name || !price){
-        status.innerText="Fill name and price ❌";
-        return;
-    }
-
+    if(!name || !price){ status.innerText="Fill name and price ❌"; return; }
     status.innerText = "Processing... ⏳";
 
     if(file){
@@ -185,46 +183,23 @@ window.saveProduct = async function(){
             const imgData = reader.result;
             try {
                 if(editId){
-                    await updateDoc(doc(db, "products", editId), {
-                        productName: name,
-                        price: Number(price),
-                        imageUrl: imgData
-                    });
-                    status.innerText="Updated Successfully ✅";
-                    editId = null;
+                    await updateDoc(doc(db, "products", editId), { productName: name, price: Number(price), imageUrl: imgData });
+                    status.innerText="Updated ✅"; editId = null;
                 } else {
-                    await addDoc(collection(db, "products"), {
-                        productName: name,
-                        price: Number(price),
-                        imageUrl: imgData,
-                        createdAt: serverTimestamp()
-                    });
-                    status.innerText="Product Added ✅";
+                    await addDoc(collection(db, "products"), { productName: name, price: Number(price), imageUrl: imgData, createdAt: serverTimestamp() });
+                    status.innerText="Added ✅";
                 }
                 clearForm();
                 setTimeout(() => { status.innerText = ""; }, 3000);
-            } catch (err) {
-                console.error(err);
-                status.innerText = "Error saving product ❌";
-            }
+            } catch (err) { status.innerText = "Error ❌"; }
         }
     } else if(editId) {
-        // Update without changing image
         try {
-            await updateDoc(doc(db, "products", editId), {
-                productName: name,
-                price: Number(price)
-            });
-            status.innerText="Updated Successfully ✅";
-            editId = null;
+            await updateDoc(doc(db, "products", editId), { productName: name, price: Number(price) });
+            status.innerText="Updated ✅"; editId = null;
             clearForm();
-            setTimeout(() => { status.innerText = ""; }, 3000);
-        } catch (err) {
-            status.innerText = "Error updating ❌";
-        }
-    } else {
-        status.innerText="Please select an image ❌";
-    }
+        } catch (err) { status.innerText = "Error ❌"; }
+    } else { status.innerText="Select an image ❌"; }
 }
 
 /* LOAD PRODUCTS */
@@ -233,7 +208,6 @@ function loadProducts(){
         const table = document.getElementById("product-table");
         table.innerHTML = "";
         document.getElementById("total").innerText = snapshot.size;
-
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
             table.innerHTML += `
@@ -250,26 +224,33 @@ function loadProducts(){
     });
 }
 
-/* LOAD ORDERS */
+/* LOAD ORDERS WITH BUYER DETAILS */
 function loadOrders(){
-    onSnapshot(collection(db, "orders"), (snapshot) => {
+    const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+    onSnapshot(ordersQuery, (snapshot) => {
         const table = document.getElementById("orders-table");
         table.innerHTML = "";
-
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
+            // Namma buyer side-la save panna details-ah inga display panrom
             table.innerHTML += `
             <tr>
-                <td><img src="${data.imageUrl || data.image || 'image.png'}"></td>
+                <td><img src="${data.imageUrl || 'image.png'}"></td>
                 <td>${data.productName}</td>
                 <td>₹${data.price}</td>
-                <td>${data.user}</td>
+                <td class="buyer-cell">
+                    <span class="buyer-name">${data.buyerName || 'Unknown'}</span>
+                    <div class="buyer-contact">
+                        📞 ${data.buyerMobile || 'N/A'}<br>
+                        📍 ${data.buyerAddress || 'N/A'}<br>
+                        📧 <small>${data.user}</small>
+                    </div>
+                </td>
             </tr>`;
         });
     });
 }
 
-/* EDIT PRODUCT */
 window.editProduct = function(id, name, price){
     showTab('addProduct');
     document.getElementById("pName").value = name;
@@ -279,18 +260,12 @@ window.editProduct = function(id, name, price){
     editId = id;
 }
 
-/* DELETE PRODUCT */
 window.deleteProduct = async function(id){
-    if(confirm("Delete this product? It will disappear for buyers too.")){
-        try {
-            await deleteDoc(doc(db, "products", id));
-        } catch (err) {
-            alert("Error deleting product.");
-        }
+    if(confirm("Delete this product?")){
+        await deleteDoc(doc(db, "products", id));
     }
 }
 
-/* CLEAR FORM */
 window.clearForm = function(){
     document.getElementById("pName").value = "";
     document.getElementById("pPrice").value = "";
