@@ -34,8 +34,16 @@ body{background:#f1f3f6;font-family:Segoe UI;margin:0; overflow-x: hidden;}
     background: rgba(0,0,0,0.5); z-index: 3500;
 }
 
+/* AVATAR STYLE */
 .user-info{display:none; align-items:center; gap:10px; color:white; cursor:pointer;}
-.user-info img{width:30px; border-radius:50%; border: 1px solid white;}
+.avatar-circle {
+    width:35px; height:35px; background:#007bff; color:white; border-radius:50%; 
+    display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:18px; border:2px solid white;
+}
+.side-avatar {
+    width:70px; height:70px; background:#000; color:white; border-radius:50%; 
+    display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:30px; margin:0 auto; border:3px solid #000;
+}
 </style>
 </head>
 
@@ -49,7 +57,7 @@ body{background:#f1f3f6;font-family:Segoe UI;margin:0; overflow-x: hidden;}
 
     <div style="display:flex; align-items:center; gap:15px;">
         <div class="user-info" id="userInfo" onclick="openProfile()">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+            <div class="avatar-circle" id="userLetter"></div>
             <span id="userName">Profile</span>
         </div>
         <div style="color:white; cursor:pointer;" onclick="window.location.href='cart.html'">
@@ -67,18 +75,18 @@ body{background:#f1f3f6;font-family:Segoe UI;margin:0; overflow-x: hidden;}
 <div id="profileSidebar">
     <button onclick="closeProfile()" style="align-self:flex-end; background:none; border:none; font-size:20px; cursor:pointer;">✖</button>
     <div style="text-align:center;">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="60" style="border-radius:50%;">
-        <h3 id="sideEmail" style="font-size:14px; margin:10px 0; word-break: break-all;">User Email</h3>
+        <div class="side-avatar" id="sideLetter"></div>
+        <h3 id="sideEmail" style="font-size:14px; margin:10px 0; word-break: break-all; color: #333;">User Email</h3>
     </div>
     <hr style="width:100%; margin:15px 0; border:0; border-top:1px solid #eee;">
     
-    <label style="font-size:12px; font-weight:bold;">FULL NAME</label>
+    <label style="font-size:12px; font-weight:bold; color: #555;">FULL NAME</label>
     <input type="text" id="sideName" placeholder="Enter your name">
     
-    <label style="font-size:12px; font-weight:bold;">MOBILE</label>
+    <label style="font-size:12px; font-weight:bold; color: #555;">MOBILE</label>
     <input type="number" id="sideMobile" placeholder="Enter mobile number">
     
-    <label style="font-size:12px; font-weight:bold;">ADDRESS</label>
+    <label style="font-size:12px; font-weight:bold; color: #555;">ADDRESS</label>
     <textarea id="sideAddress" rows="3" placeholder="Enter delivery address"></textarea>
 
     <button onclick="saveProfile()" style="background:#28a745; color:white; border:none; padding:12px; border-radius:5px; cursor:pointer; font-weight:bold;">💾 Save Details</button>
@@ -116,15 +124,23 @@ const auth=firebase.auth();
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 document.getElementById("cartCount").innerText = cart.length;
 
-/* AUTH STATE */
+/* AUTH STATE & LETTER AVATAR LOGIC */
 auth.onAuthStateChanged(user=>{
     const btn=document.getElementById("loginBtn");
     const userInfo=document.getElementById("userInfo");
     const userName=document.getElementById("userName");
+    const userLetter=document.getElementById("userLetter");
+    const sideLetter=document.getElementById("sideLetter");
 
     if(user && user.email !== "sureshrajagunam24@gmail.com"){
         btn.style.display="none";
         userInfo.style.display="flex";
+        
+        // Letter Avatar Setup
+        const firstLetter = user.email.charAt(0).toUpperCase();
+        userLetter.innerText = firstLetter;
+        if(sideLetter) sideLetter.innerText = firstLetter;
+
         userName.innerText = user.email.split('@')[0].toUpperCase();
     } else {
         btn.style.display="block";
@@ -206,12 +222,11 @@ db.collection("products").orderBy("createdAt","desc").onSnapshot(snapshot=>{
     });
 });
 
-/* BUY NOW WITH ADDRESS AUTO-FETCH */
+/* BUY NOW LOGIC */
 window.buyNow = function(id, name, price, image) {
     const user = auth.currentUser;
     if(!user || user.email === "sureshrajagunam24@gmail.com") { alert("⚠ Please Login as Buyer First"); openLogin(); return; }
 
-    // First, check if user has filled profile details
     db.collection("users").doc(user.uid).get().then(doc => {
         if(!doc.exists || !doc.data().address || !doc.data().mobile) {
             alert("⚠ Please update your Name, Mobile and Address in Profile Sidebar first!");
