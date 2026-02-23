@@ -67,6 +67,18 @@ const auth=firebase.auth();
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 document.getElementById("cartCount").innerText = cart.length;
 
+/* AUTH STATE CHECK (NEW ADD) */
+auth.onAuthStateChanged(user=>{
+if(user){
+document.querySelector(".login-btn").innerText="Logout";
+document.querySelector(".login-btn").onclick=()=>{
+auth.signOut();
+alert("Logged Out ✅");
+location.reload();
+}
+}
+});
+
 /* LOGIN UI */
 function openLogin(){
 document.getElementById("loginBox").style.display="block"
@@ -121,9 +133,8 @@ list.innerHTML+=`
 });
 });
 
-/* ADD TO CART (LOGIN REQUIRED) */
+/* ADD TO CART */
 function addToCart(id,name,price){
-
 if(!auth.currentUser){
 alert("⚠ Please Login First");
 openLogin();
@@ -138,7 +149,6 @@ alert("Added to Cart ✅");
 
 /* BUY NOW */
 function buyNow(id,name,price){
-
 if(!auth.currentUser){
 alert("⚠ Please Login First");
 openLogin();
