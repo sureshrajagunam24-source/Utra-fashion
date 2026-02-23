@@ -1,50 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Loyal Fashion</title>
     <style>
-        body{background:#f1f3f6; font-family:Segoe UI; margin:0; display:flex; justify-content:center; align-items:center; height:100vh;}
-        .profile-card{background:white; padding:40px; border-radius:15px; width:350px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.1);}
-        .profile-card img{width:100px; border-radius:50%; margin-bottom:20px; border:3px solid #000;}
+        body{background:#f1f3f6; font-family:'Segoe UI', sans-serif; margin:0; display:flex; justify-content:center; align-items:center; min-height:100vh; padding: 20px;}
+        .profile-card{background:white; padding:30px; border-radius:15px; width:100%; max-width:400px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.1);}
+        .profile-card img{width:80px; border-radius:50%; margin-bottom:15px; border: 2px solid #000;}
+        input, textarea {width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;}
         .btn{padding:12px; width:100%; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;}
-        .order-btn{background:black; color:white;}
+        .save-btn{background:#28a745; color:white;}
+        .orders-btn{background:black; color:white;}
         .logout-btn{background:#ff4d4d; color:white;}
+        .status-msg{font-size: 14px; margin-top: 10px;}
     </style>
 </head>
 <body>
-    <div class="profile-card">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-        <h2 id="user-email">Loading...</h2>
-        <p style="color:#777;">Premium Member</p>
-        <button class="btn order-btn" onclick="window.location.href='my-orders.html'">📦 View My Orders</button>
-        <button class="btn logout-btn" onclick="logout()">🚪 Logout</button>
-        <br><br>
-        <a href="index.html" style="text-decoration:none; color:#007bff;">Back to Home</a>
-    </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-    <script>
-        const firebaseConfig = { /* Unga Firebase Config Inga Podunga */ };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+<div class="profile-card">
+    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User Icon">
+    <h2 id="displayEmail">Loading...</h2>
+    
+    <input type="text" id="userName" placeholder="Full Name">
+    <input type="number" id="userMobile" placeholder="Mobile Number">
+    <textarea id="userAddress" rows="3" placeholder="Delivery Address"></textarea>
+    
+    <button class="btn save-btn" onclick="saveProfile()">💾 Save Profile</button>
+    <button class="btn orders-btn" onclick="window.location.href='my-orders.html'">📦 View My Orders</button>
+    <button class="btn logout-btn" onclick="logout()">🚪 Logout</button>
+    
+    <p id="status" class="status-msg"></p>
+    <a href="index.html" style="display:block; margin-top:15px; color:#007bff; text-decoration:none;">← Back to Home</a>
+</div>
 
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById("user-email").innerText = user.email;
-            } else {
-                window.location.href = "index.html";
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig={
+    apiKey:"AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
+    authDomain:"e-commerce-wepsite.firebaseapp.com",
+    projectId:"e-commerce-wepsite",
+    storageBucket:"e-commerce-wepsite.appspot.com",
+    messagingSenderId:"394408704286",
+    appId:"1:394408704286:web:9ad690a946b225ab20f10f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// 1. User Data Fetch Pannuvom
+auth.onAuthStateChanged(user => {
+    if (user) {
+        document.getElementById("displayEmail").innerText = user.email;
+        
+        // Firestore-la irundhu details fetch pannalam
+        db.collection("users").doc(user.uid).get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById("userName").value = data.name || "";
+                document.getElementById("userMobile").value = data.mobile || "";
+                document.getElementById("userAddress").value = data.address || "";
             }
         });
+    } else {
+        window.location.href = "index.html";
+    }
+});
 
-        function logout() {
-            if(confirm("Logout pannanuma?")) {
-                auth.signOut().then(() => {
-                    alert("Logged Out ✅");
-                    window.location.href = "index.html";
-                });
-            }
-        }
-    </script>
+// 2. Profile Details Save Panra Logic
+function saveProfile() {
+    const user = auth.currentUser;
+    const name = document.getElementById("userName").value;
+    const mobile = document.getElementById("userMobile").value;
+    const address = document.getElementById("userAddress").value;
+    const status = document.getElementById("status");
+
+    if(!name || !mobile || !address) {
+        status.style.color = "red";
+        status.innerText = "Please fill all details! ❌";
+        return;
+    }
+
+    db.collection("users").doc(user.uid).set({
+        name: name,
+        mobile: mobile,
+        address: address,
+        email: user.email
+    }, { merge: true })
+    .then(() => {
+        status.style.color = "green";
+        status.innerText = "Profile Updated Successfully! ✅";
+        setTimeout(() => { status.innerText = ""; }, 3000);
+    })
+    .catch((error) => {
+        console.error("Error updating profile:", error);
+    });
+}
+
+function logout() {
+    auth.signOut().then(() => { window.location.href = "index.html"; });
+}
+</script>
 </body>
 </html>
