@@ -7,32 +7,47 @@
 <style>
 :root { --primary: #ff3f6c; --dark: #282c3f; --light: #f5f5f6; }
 body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hidden; color: var(--dark);}
+
+/* HEADER */
 .header{background:#fff; padding:10px 50px; display:flex; align-items:center; justify-content:space-between; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
 .logo-section { display:flex; align-items:center; gap:12px; cursor: pointer; }
 .logo-section b { font-size: 20px; color: #000; text-transform: uppercase; }
-.nav-links { display: flex; gap: 25px; font-weight: bold; font-size: 14px; }
-.nav-links span { cursor: pointer; padding: 10px 0; transition: 0.3s; border-bottom: 2px solid transparent;}
-.nav-links span:hover { color: var(--primary); border-bottom: 2px solid var(--primary); }
-.search-container { background: var(--light); padding: 8px 15px; border-radius: 4px; display: flex; align-items: center; width: 300px; }
+
+/* SEARCH BAR WITH CAMERA */
+.search-container { background: var(--light); padding: 8px 15px; border-radius: 4px; display: flex; align-items: center; width: 350px; position: relative; }
 .search-container input { background: none; border: none; outline: none; width: 100%; font-size: 13px; }
+.camera-icon { cursor: pointer; font-size: 18px; color: #666; margin-left: 10px; transition: 0.3s; }
+.camera-icon:hover { color: var(--primary); }
+
 .action-icons { display: flex; align-items: center; gap: 20px; }
 .icon-btn { text-align: center; cursor: pointer; position: relative; font-size: 12px; font-weight: bold; }
 .avatar-circle { width:32px; height:32px; background:var(--dark); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; margin: 0 auto; }
+
+/* PRODUCT GRID */
 .product-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:30px; padding:40px 50px;}
-.product-card{background:#fff; text-align:left; transition: 0.3s; cursor: pointer; border: 1px solid transparent;}
+.product-card{background:#fff; text-align:left; transition: 0.3s; cursor: pointer; border: 1px solid transparent; position: relative;}
 .product-card:hover { border: 1px solid #eee; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
 .product-card img{width:100%; height:320px; object-fit:cover; border-radius:4px;}
+
+/* WISHLIST BUTTON ❤️ */
+.wish-btn { position: absolute; top: 15px; right: 15px; background: white; border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; transition: 0.3s; }
+.wish-btn:hover { transform: scale(1.1); color: var(--primary); }
+
 .product-info { padding: 15px; }
 .rating-badge { background: #e8f5e9; color: #2e7d32; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
+
 .btn-group { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
 .cart-add-btn { background: #fff; color: var(--dark); border: 1px solid #d4d5d9; padding: 10px; font-weight: bold; cursor: pointer; }
 .buy-now-btn { background: var(--dark); color: #fff; border: none; padding: 12px; font-weight: bold; cursor: pointer; }
+
+/* SIDEBAR & MODAL */
 #profileSidebar { position: fixed; top: 0; right: -350px; width: 300px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); z-index: 4000; transition: 0.4s; padding: 25px; }
 .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3500; }
 .modal { display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:25px; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index: 3000; width: 300px;}
 #cartCount { background: var(--primary); color: white; padding: 2px 6px; border-radius: 50%; font-size: 10px; position: absolute; top: -8px; right: 5px; }
 </style>
 </head>
+
 <body>
 
 <div class="header">
@@ -46,15 +61,20 @@ body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hi
         <span onclick="filterCategory('WOMEN')">WOMEN</span>
         <span onclick="filterCategory('KIDS')">KIDS</span>
     </div>
+    
     <div class="search-container">
         <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="Search for products...">
+        <label for="imgSearch" class="camera-icon">📷</label>
+        <input type="file" id="imgSearch" style="display:none;" accept="image/*" onchange="searchByImage(event)">
     </div>
+
     <div class="action-icons">
         <div class="icon-btn" id="loginBtn" onclick="openLogin()">👤<br>Login</div>
         <div class="icon-btn" id="userInfo" style="display:none;" onclick="openProfile()">
             <div class="avatar-circle" id="userLetter"></div>
             <span id="userName">Profile</span>
         </div>
+        <div class="icon-btn" onclick="window.location.href='wishlist.html'">❤️<br>Wishlist</div>
         <div class="icon-btn" onclick="window.location.href='cart.html'">🛒<span id="cartCount">0</span><br>Cart</div>
     </div>
 </div>
@@ -88,14 +108,7 @@ body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hi
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig={
-apiKey:"AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
-authDomain:"e-commerce-wepsite.firebaseapp.com",
-projectId:"e-commerce-wepsite",
-storageBucket:"e-commerce-wepsite.appspot.com",
-messagingSenderId:"394408704286",
-appId:"1:394408704286:web:9ad690a946b225ab20f10f"
-};
+const firebaseConfig={ apiKey:"AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4", authDomain:"e-commerce-wepsite.firebaseapp.com", projectId:"e-commerce-wepsite", storageBucket:"e-commerce-wepsite.appspot.com", messagingSenderId:"394408704286", appId:"1:394408704286:web:9ad690a946b225ab20f10f" };
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const auth=firebase.auth();
@@ -103,6 +116,7 @@ const auth=firebase.auth();
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 document.getElementById("cartCount").innerText = cart.length;
 
+/* AUTH LOGIC */
 auth.onAuthStateChanged(user=>{
     const loginBtn=document.getElementById("loginBtn");
     const userInfo=document.getElementById("userInfo");
@@ -142,6 +156,39 @@ function handleAuth() {
     }
 }
 
+/* WISHLIST ❤️ */
+window.toggleWishlist = function(id, name, img) {
+    const user = auth.currentUser;
+    if(!user) { openLogin(); return; }
+    db.collection("wishlist").add({
+        user: user.email, productId: id, productName: name, imageUrl: img, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => alert("Added to Wishlist! ❤️"));
+}
+
+/* IMAGE SEARCH SIMULATION */
+window.searchByImage = function(event) {
+    alert("Image Search Feature Activated! Analyzing Image... 📷");
+    // Visual Search logic future-la add pannalaam
+}
+
+/* SEARCH & FILTER */
+window.searchProducts = function() {
+    const input = document.getElementById('searchInput').value.toUpperCase();
+    const cards = document.getElementsByClassName('product-card');
+    for (let card of cards) {
+        const title = card.querySelector('h3').innerText.toUpperCase();
+        card.style.display = title.includes(input) ? "" : "none";
+    }
+}
+window.filterCategory = function(cat) {
+    const cards = document.getElementsByClassName('product-card');
+    for (let card of cards) {
+        const title = card.querySelector('h3').innerText.toUpperCase();
+        card.style.display = (cat === 'ALL' || title.includes(cat)) ? "" : "none";
+    }
+}
+
+/* PROFILE LOGIC */
 function openProfile() {
     document.getElementById("profileSidebar").style.right = "0";
     document.getElementById("overlay").style.display = "block";
@@ -166,17 +213,17 @@ function saveProfile() {
 function openLogin() { document.getElementById("loginBox").style.display="block"; }
 function closeLogin() { document.getElementById("loginBox").style.display="none"; }
 
-/* LOAD PRODUCTS WITH STAR RATINGS */
+/* LOAD PRODUCTS */
 db.collection("products").orderBy("createdAt","desc").onSnapshot(snapshot=>{
     const list=document.getElementById("product-list");
     list.innerHTML="";
-    snapshot.forEach(doc=>{
-        const data=doc.data();
-        const productId = doc.id;
+    snapshot.forEach(docSnap=>{
+        const data=docSnap.data();
+        const productId = docSnap.id;
         
-        // Product Card HTML
-        const productHtml = `
+        list.innerHTML += `
         <div class="product-card">
+            <button class="wish-btn" onclick="toggleWishlist('${productId}','${data.productName}','${data.imageUrl}')">🤍</button>
             <img src="${data.imageUrl}">
             <div class="product-info">
                 <div id="rate-${productId}" class="rating-badge">⭐ Loading...</div>
@@ -188,9 +235,7 @@ db.collection("products").orderBy("createdAt","desc").onSnapshot(snapshot=>{
                 </div>
             </div>
         </div>`;
-        list.innerHTML += productHtml;
 
-        // Fetch Average Rating for this product
         db.collection("reviews").where("productName", "==", data.productName).get().then(snap => {
             let total = 0;
             snap.forEach(r => total += r.data().rating);
