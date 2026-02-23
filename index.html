@@ -6,31 +6,36 @@
 <title>Loyal Fashion - Premium Store</title>
 
 <style>
-body{background:#f1f3f6;font-family:Segoe UI;margin:0}
-.header{background:#000;color:#fff;padding:15px 50px;display:flex;align-items:center;justify-content:space-between}
+body{background:#f1f3f6;font-family:Segoe UI;margin:0; overflow-x: hidden;}
+.header{background:#000;color:#fff;padding:15px 50px;display:flex;align-items:center;justify-content:space-between; position: sticky; top: 0; z-index: 1000;}
 .product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;padding:30px}
-.product-card{background:#fff;padding:15px;border-radius:10px;text-align:center}
+.product-card{background:#fff;padding:15px;border-radius:10px;text-align:center; box-shadow: 0 4px 8px rgba(0,0,0,0.05);}
 .product-card img{width:100%;height:250px;object-fit:cover;border-radius:8px}
-.buy-btn{background:#000;color:#fff;border:none;padding:10px;width:100%;margin-top:10px;cursor:pointer}
-.cart-btn{background:#28a745;color:#fff;border:none;padding:10px;width:100%;margin-top:5px;cursor:pointer}
+.buy-btn{background:#000;color:#fff;border:none;padding:10px;width:100%;margin-top:10px;cursor:pointer; font-weight: bold;}
+.cart-btn{background:#28a745;color:#fff;border:none;padding:10px;width:100%;margin-top:5px;cursor:pointer; font-weight: bold;}
 .login-btn{background:#fff;color:#000;padding:8px 15px;border:none;border-radius:5px;font-weight:bold;cursor:pointer}
-#cartCount{background:red;color:white;padding:4px 8px;border-radius:50%}
-.modal{
-display:none;
-position:fixed;
-top:30%;
-left:50%;
-transform:translateX(-50%);
-background:white;
-padding:25px;
-border-radius:10px;
-box-shadow:0 10px 25px rgba(0,0,0,0.2);
-z-index: 2000;
+#cartCount{background:red;color:white;padding:2px 6px;border-radius:50%; font-size: 12px; position: relative; top: -10px; left: -10px;}
+
+/* LOGIN MODAL */
+.modal{ display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:25px; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index: 3000; width: 300px;}
+.modal input{width:90%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px;}
+
+/* PROFILE SIDEBAR */
+#profileSidebar {
+    position: fixed; top: 0; right: -350px; width: 300px; height: 100%; 
+    background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); 
+    z-index: 4000; transition: 0.4s; padding: 25px; display: flex; flex-direction: column;
 }
-input{width:90%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px;}
-/* Profile Style */
+#profileSidebar input, #profileSidebar textarea {
+    width: 90%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;
+}
+.sidebar-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.5); z-index: 3500;
+}
+
 .user-info{display:none; align-items:center; gap:10px; color:white; cursor:pointer;}
-.user-info img{width:30px; border-radius:50%;}
+.user-info img{width:30px; border-radius:50%; border: 1px solid white;}
 </style>
 </head>
 
@@ -42,26 +47,50 @@ input{width:90%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radi
         <b>LOYAL FASHION</b>
     </div>
 
-    <div style="display:flex; align-items:center; gap:20px;">
-        <div class="user-info" id="userInfo" onclick="window.location.href='profile.html'">
+    <div style="display:flex; align-items:center; gap:15px;">
+        <div class="user-info" id="userInfo" onclick="openProfile()">
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
             <span id="userName">Profile</span>
         </div>
         <div style="color:white; cursor:pointer;" onclick="window.location.href='cart.html'">
-            🛒 <span id="cartCount">0</span>
+            🛒<span id="cartCount">0</span>
         </div>
-        <button onclick="window.location.href='my-orders.html'">My Orders</button>
+        <button onclick="window.location.href='my-orders.html'" style="cursor:pointer;">Orders</button>
         <button class="login-btn" onclick="openLogin()" id="loginBtn">Login</button>
     </div>
 </div>
 
 <div class="product-grid" id="product-list"></div>
 
+<div class="sidebar-overlay" id="overlay" onclick="closeProfile()"></div>
+
+<div id="profileSidebar">
+    <button onclick="closeProfile()" style="align-self:flex-end; background:none; border:none; font-size:20px; cursor:pointer;">✖</button>
+    <div style="text-align:center;">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="60" style="border-radius:50%;">
+        <h3 id="sideEmail" style="font-size:14px; margin:10px 0; word-break: break-all;">User Email</h3>
+    </div>
+    <hr style="width:100%; margin:15px 0; border:0; border-top:1px solid #eee;">
+    
+    <label style="font-size:12px; font-weight:bold;">FULL NAME</label>
+    <input type="text" id="sideName" placeholder="Enter your name">
+    
+    <label style="font-size:12px; font-weight:bold;">MOBILE</label>
+    <input type="number" id="sideMobile" placeholder="Enter mobile number">
+    
+    <label style="font-size:12px; font-weight:bold;">ADDRESS</label>
+    <textarea id="sideAddress" rows="3" placeholder="Enter delivery address"></textarea>
+
+    <button onclick="saveProfile()" style="background:#28a745; color:white; border:none; padding:12px; border-radius:5px; cursor:pointer; font-weight:bold;">💾 Save Details</button>
+    <button onclick="logout()" style="margin-top:auto; background:none; color:#ff4d4d; border:1px solid #ff4d4d; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">🚪 Logout</button>
+    <p id="sideStatus" style="font-size:12px; text-align:center; margin-top:10px; font-weight:bold;"></p>
+</div>
+
 <div class="modal" id="loginBox">
-    <h3>Buyer Login</h3>
+    <h3 style="margin-top:0;">Buyer Login</h3>
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Password">
-    <button onclick="login()" style="width:100%; background:black; color:white; padding:10px; border:none; cursor:pointer;">Login</button>
+    <button onclick="login()" style="width:100%; background:black; color:white; padding:10px; border:none; cursor:pointer; font-weight:bold;">Login</button>
     <button onclick="signup()" style="width:100%; background:gray; color:white; padding:10px; border:none; margin-top:10px; cursor:pointer;">Signup</button>
     <button onclick="closeLogin()" style="width:100%; background:none; color:red; border:none; margin-top:10px; cursor:pointer;">Close</button>
 </div>
@@ -93,7 +122,6 @@ auth.onAuthStateChanged(user=>{
     const userInfo=document.getElementById("userInfo");
     const userName=document.getElementById("userName");
 
-    // Admin login-la irundha buyer page-la disturb pannaama irukka indha logic:
     if(user && user.email !== "sureshrajagunam24@gmail.com"){
         btn.style.display="none";
         userInfo.style.display="flex";
@@ -106,48 +134,67 @@ auth.onAuthStateChanged(user=>{
     }
 });
 
+/* SIDEBAR LOGIC */
+window.openProfile = function() {
+    const user = auth.currentUser;
+    if(!user) { openLogin(); return; }
+    document.getElementById("profileSidebar").style.right = "0";
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("sideEmail").innerText = user.email;
+
+    db.collection("users").doc(user.uid).get().then(doc => {
+        if(doc.exists) {
+            const d = doc.data();
+            document.getElementById("sideName").value = d.name || "";
+            document.getElementById("sideMobile").value = d.mobile || "";
+            document.getElementById("sideAddress").value = d.address || "";
+        }
+    });
+}
+window.closeProfile = function() {
+    document.getElementById("profileSidebar").style.right = "-350px";
+    document.getElementById("overlay").style.display = "none";
+}
+
+/* SAVE PROFILE */
+window.saveProfile = function() {
+    const user = auth.currentUser;
+    const name = document.getElementById("sideName").value.trim();
+    const mobile = document.getElementById("sideMobile").value.trim();
+    const address = document.getElementById("sideAddress").value.trim();
+    const status = document.getElementById("sideStatus");
+
+    if(!name || !mobile || !address) { status.innerText="Fill all fields! ❌"; status.style.color="red"; return; }
+
+    db.collection("users").doc(user.uid).set({ name, mobile, address, email: user.email }, {merge:true})
+    .then(() => {
+        status.innerText="Saved Successfully! ✅"; status.style.color="green";
+        setTimeout(()=> status.innerText="", 2000);
+    });
+}
+
 /* LOGIN FUNCTIONS */
-function openLogin(){
-    document.getElementById("loginBox").style.display="block";
-}
-function closeLogin(){
-    document.getElementById("loginBox").style.display="none";
-}
+function openLogin(){ document.getElementById("loginBox").style.display="block"; }
+function closeLogin(){ document.getElementById("loginBox").style.display="none"; }
 
 function login(){
     const email=document.getElementById("email").value;
     const password=document.getElementById("password").value;
-
-    auth.signInWithEmailAndPassword(email,password)
-    .then(()=>{
-        alert("Login Success ✅");
-        closeLogin();
-    })
-    .catch(err=>alert(err.message));
+    auth.signInWithEmailAndPassword(email,password).then(()=> { alert("Login Success ✅"); closeLogin(); }).catch(err=>alert(err.message));
 }
-
 function signup(){
     const email=document.getElementById("email").value;
     const password=document.getElementById("password").value;
-
-    auth.createUserWithEmailAndPassword(email,password)
-    .then(()=>{
-        alert("Account Created ✅");
-        closeLogin();
-    })
-    .catch(err=>alert(err.message));
+    auth.createUserWithEmailAndPassword(email,password).then(()=> { alert("Account Created ✅"); closeLogin(); }).catch(err=>alert(err.message));
 }
+function logout() { if(confirm("Logout?")) auth.signOut().then(()=> location.reload()); }
 
 /* LOAD PRODUCTS */
-db.collection("products")
-.orderBy("createdAt","desc")
-.onSnapshot(snapshot=>{
+db.collection("products").orderBy("createdAt","desc").onSnapshot(snapshot=>{
     const list=document.getElementById("product-list");
     list.innerHTML="";
-
     snapshot.forEach(doc=>{
         const data=doc.data();
-
         list.innerHTML+=`
         <div class="product-card">
             <img src="${data.imageUrl}">
@@ -159,40 +206,41 @@ db.collection("products")
     });
 });
 
-/* ADD TO CART */
-function addToCart(id,name,price,image){
-    if(!auth.currentUser || auth.currentUser.email === "sureshrajagunam24@gmail.com"){
-        alert("⚠ Please Login as Buyer First");
-        openLogin();
-        return;
-    }
+/* BUY NOW WITH ADDRESS AUTO-FETCH */
+window.buyNow = function(id, name, price, image) {
+    const user = auth.currentUser;
+    if(!user || user.email === "sureshrajagunam24@gmail.com") { alert("⚠ Please Login as Buyer First"); openLogin(); return; }
 
+    // First, check if user has filled profile details
+    db.collection("users").doc(user.uid).get().then(doc => {
+        if(!doc.exists || !doc.data().address || !doc.data().mobile) {
+            alert("⚠ Please update your Name, Mobile and Address in Profile Sidebar first!");
+            openProfile();
+            return;
+        }
+        
+        const userData = doc.data();
+        db.collection("orders").add({
+            user: user.email,
+            buyerName: userData.name,
+            buyerMobile: userData.mobile,
+            buyerAddress: userData.address,
+            productId: id,
+            productName: name,
+            price: price,
+            imageUrl: image,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => alert("Order Placed Successfully ✅ Address fetched from profile!"));
+    });
+}
+
+function addToCart(id,name,price,image){
+    if(!auth.currentUser || auth.currentUser.email === "sureshrajagunam24@gmail.com"){ alert("⚠ Login as Buyer"); openLogin(); return; }
     cart.push({id,name,price,image});
     localStorage.setItem("cart",JSON.stringify(cart));
     document.getElementById("cartCount").innerText=cart.length;
     alert("Added to Cart ✅");
 }
-
-/* BUY NOW */
-function buyNow(id,name,price,image){
-    if(!auth.currentUser || auth.currentUser.email === "sureshrajagunam24@gmail.com"){
-        alert("⚠ Please Login as Buyer First");
-        openLogin();
-        return;
-    }
-
-    db.collection("orders").add({
-        user:auth.currentUser.email,
-        productId:id,
-        productName:name,
-        price:price,
-        imageUrl:image,
-        createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        alert("Order Placed Successfully ✅");
-    });
-}
 </script>
-
 </body>
 </html>
