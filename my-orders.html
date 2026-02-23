@@ -5,22 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - Loyal Fashion</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .order-card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; align-items: center; gap: 20px; }
-        .order-card img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .order-card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; align-items: center; gap: 20px; position: relative; }
+        .order-card img { width: 90px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; }
         .order-info { flex: 1; }
-        .order-info h3 { margin: 0 0 5px 0; font-size: 16px; }
-        .order-info p { margin: 0; color: #666; font-size: 14px; }
-        .status { background: #e8f5e9; color: #2e7d32; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .back-btn { background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .order-info h3 { margin: 0 0 8px 0; font-size: 17px; color: #282c3f; }
+        .order-info p { margin: 4px 0; color: #666; font-size: 14px; font-weight: 500; }
+        
+        /* STATUS PILLS LOGIC */
+        .status-badge { 
+            padding: 6px 14px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-pending { background: #fff3e0; color: #ef6c00; }
+        .status-shipped { background: #e3f2fd; color: #1976d2; }
+        .status-delivered { background: #e8f5e9; color: #2e7d32; }
+
+        .back-btn { background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h2>📦 My Purchase History</h2>
-    <button class="back-btn" onclick="window.location.href='index.html'">Back to Shop</button>
+    <h2 style="margin:0;">🛍 My Orders</h2>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Back to Store</button>
 </div>
 
 <div id="ordersList">
@@ -44,14 +57,13 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-/* LOAD LOGGED IN USER'S ORDERS ONLY */
 auth.onAuthStateChanged(user => {
     if (!user) {
         window.location.href = 'index.html';
         return;
     }
 
-    // Filter orders by current user email
+    // Orders-ah real-time-aa fetch pannuvom
     db.collection("orders")
       .where("user", "==", user.email)
       .orderBy("createdAt", "desc")
@@ -60,21 +72,32 @@ auth.onAuthStateChanged(user => {
           list.innerHTML = "";
 
           if (snapshot.empty) {
-              list.innerHTML = "<div style='text-align:center; padding:50px;'><h3>No orders yet! Start shopping. 🛍</h3></div>";
+              list.innerHTML = "<div style='text-align:center; padding:100px;'><h3>No orders found. Happy Shopping! 🛒</h3></div>";
               return;
           }
 
           snapshot.forEach(doc => {
               const data = doc.data();
+              const orderStatus = data.status || "Pending"; // Default is Pending
+              
+              // CSS Class assignment based on status
+              let statusClass = "status-pending";
+              if(orderStatus === "Shipped") statusClass = "status-shipped";
+              if(orderStatus === "Delivered") statusClass = "status-delivered";
+
               list.innerHTML += `
               <div class="order-card">
                   <img src="${data.imageUrl}" alt="product">
                   <div class="order-info">
                       <h3>${data.productName}</h3>
-                      <p>Price: ₹${data.price}</p>
-                      <p style="font-size: 11px; color: #999;">Ordered on: ${data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Processing...'}</p>
+                      <p>Amount: ₹${data.price}</p>
+                      <p style="font-size: 11px; color: #999;">Date: ${data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Just now'}</p>
                   </div>
-                  <span class="status">✅ ORDERED</span>
+                  <div>
+                      <span class="status-badge ${statusClass}">
+                          ● ${orderStatus}
+                      </span>
+                  </div>
               </div>`;
           });
       });
