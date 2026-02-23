@@ -1,38 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard - Loyal Fashion</title>
-
 <style>
-body{margin:0;font-family:Segoe UI;display:flex;height:100vh;background:#f4f6f9;}
+body{margin:0;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;display:flex;height:100vh;background:#f4f6f9;}
 .sidebar{width:250px;background:#000;color:#fff;display:flex;flex-direction:column;padding:20px;}
 .logo{text-align:center;margin-bottom:40px;}
 .logo img{width:60px;border-radius:50%;}
-.logo h2{margin:10px 0 0 0;}
-.nav-item{padding:15px;margin-bottom:10px;border-radius:8px;cursor:pointer; transition: 0.3s;}
-.nav-item:hover{background:#222;color:#ffd700;}
-.nav-item.active{background:#222;color:#ffd700;}
-.logout{margin-top:auto;background:#ff4d4d;text-align:center; padding: 15px; border-radius: 8px; cursor: pointer;}
+.logo h2{margin:10px 0 0 0; font-size: 18px; letter-spacing: 1px;}
+.nav-item{padding:15px;margin-bottom:10px;border-radius:8px;cursor:pointer; transition: 0.3s; font-weight: 500;}
+.nav-item:hover, .nav-item.active{background:#222;color:#ffd700;}
+.logout{margin-top:auto;background:#ff4d4d;text-align:center; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold;}
 .main{flex:1;padding:40px;overflow:auto;}
 .card{background:#fff;padding:25px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.05);margin-bottom:25px;}
+
+/* Form & Table Styles */
 input, select{width:100%;padding:12px;margin:10px 0;border-radius:8px;border:1px solid #ddd; box-sizing: border-box;}
-button{padding:8px 12px;border:none;border-radius:6px;cursor:pointer;}
-.post-btn{width:100%;background:#007bff;color:#fff; font-weight: bold; padding: 12px;}
-.edit-btn{background:#ffc107;}
+button{padding:10px 15px;border:none;border-radius:6px;cursor:pointer; font-weight: bold;}
+.post-btn{width:100%;background:#007bff;color:#fff; padding: 12px; margin-top: 10px;}
+.edit-btn{background:#ffc107; margin-right: 5px;}
 .delete-btn{background:#dc3545;color:#fff;}
+
 table{width:100%;border-collapse:collapse;}
-th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;}
-img{width:50px;height: 50px; object-fit: cover; border-radius:8px;}
+th,td{padding:15px;border-bottom:1px solid #eee;text-align:left;}
+.order-img{width:60px; height: 60px; object-fit: cover; border-radius:8px; border: 1px solid #ddd;}
 .tab{display:none;}
 .tab.active-tab{display:block;}
 
-/* Extra Styles for Buyer Details & Status */
-.buyer-cell { font-size: 13px; line-height: 1.4; }
-.buyer-name { font-weight: bold; color: #ff3f6c; display: block; }
-.buyer-contact { color: #555; font-size: 12px; }
-.status-select { padding: 5px; border-radius: 4px; border: 1px solid #ddd; cursor: pointer; font-weight: bold; }
+/* Buyer Details Styles */
+.buyer-info-box { font-size: 13px; line-height: 1.5; }
+.buyer-name { font-weight: bold; color: #ff3f6c; font-size: 15px; display: block; margin-bottom: 3px; }
+.status-select { padding: 8px; border-radius: 4px; font-weight: bold; border: 1px solid #ddd; cursor: pointer; }
 </style>
 </head>
 
@@ -40,10 +40,9 @@ img{width:50px;height: 50px; object-fit: cover; border-radius:8px;}
 
 <div class="sidebar">
     <div class="logo">
-        <img src="image.png">
+        <img src="image.png" alt="Logo">
         <h2>LOYAL FASHION</h2>
     </div>
-
     <div class="nav-item active" id="nav-dashboard" onclick="showTab('dashboard')">📊 Dashboard</div>
     <div class="nav-item" id="nav-addProduct" onclick="showTab('addProduct')">➕ Add Product</div>
     <div class="nav-item" id="nav-inventory" onclick="showTab('inventory')">📦 Inventory</div>
@@ -52,60 +51,47 @@ img{width:50px;height: 50px; object-fit: cover; border-radius:8px;}
 </div>
 
 <div class="main">
-
-<div id="dashboard" class="tab active-tab">
-    <div class="card">
-        <h2>Dashboard Overview</h2>
-        <p>Total Products in Store: <span id="total" style="font-weight:bold; color:#007bff;">0</span></p>
+    <div id="dashboard" class="tab active-tab">
+        <div class="card">
+            <h2>Dashboard Overview</h2>
+            <p style="font-size: 18px;">Total Products: <span id="total" style="color: #007bff; font-weight: bold;">0</span></p>
+        </div>
     </div>
-</div>
 
-<div id="addProduct" class="tab">
-    <div class="card">
-        <h2 id="form-title">Add Product</h2>
-        <input type="text" id="pName" placeholder="Product Name">
-        <input type="number" id="pPrice" placeholder="Price">
-        <input type="file" id="pImage" accept="image/*">
-        <button class="post-btn" id="save-btn" onclick="saveProduct()">Save Product</button>
-        <p id="status" style="text-align:center; font-weight:bold; margin-top:10px;"></p>
+    <div id="addProduct" class="tab">
+        <div class="card">
+            <h2 id="form-title">Add New Product</h2>
+            <input type="text" id="pName" placeholder="Product Name">
+            <input type="number" id="pPrice" placeholder="Price (₹)">
+            <input type="file" id="pImage" accept="image/*">
+            <button class="post-btn" id="save-btn" onclick="saveProduct()">Save Product</button>
+            <p id="status-msg" style="text-align:center; font-weight:bold; margin-top:10px;"></p>
+        </div>
     </div>
-</div>
 
-<div id="inventory" class="tab">
-    <div class="card">
-        <h2>Inventory Control</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="product-table"></tbody>
-        </table>
+    <div id="inventory" class="tab">
+        <div class="card">
+            <h2>Inventory Control</h2>
+            <table>
+                <thead>
+                    <tr><th>Image</th><th>Name</th><th>Price</th><th>Action</th></tr>
+                </thead>
+                <tbody id="product-table"></tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<div id="orders" class="tab">
-    <div class="card">
-        <h2>Buyer Live Orders</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Buyer & Delivery Info</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="orders-table"></tbody>
-        </table>
+    <div id="orders" class="tab">
+        <div class="card">
+            <h2>Buyer Live Orders</h2>
+            <table>
+                <thead>
+                    <tr><th>Image</th><th>Product</th><th>Price</th><th>Buyer & Delivery Info</th><th>Status</th></tr>
+                </thead>
+                <tbody id="orders-table"></tbody>
+            </table>
+        </div>
     </div>
-</div>
-
 </div>
 
 <script type="module">
@@ -127,12 +113,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 let editId = null;
 
 onAuthStateChanged(auth, (user)=>{
-    const isAdminFlag = localStorage.getItem("isAdminLoggedIn");
-    if(!user || user.email !== "sureshrajagunam24@gmail.com" || isAdminFlag !== "true"){
+    const isAdmin = localStorage.getItem("isAdminLoggedIn");
+    if(!user || user.email !== "sureshrajagunam24@gmail.com" || isAdmin !== "true"){
         window.location.href="admin-login.html";
     } else {
         loadProducts();
@@ -160,9 +145,9 @@ window.saveProduct = async function(){
     const name = document.getElementById("pName").value.trim();
     const price = document.getElementById("pPrice").value.trim();
     const file = document.getElementById("pImage").files[0];
-    const status = document.getElementById("status");
+    const status = document.getElementById("status-msg");
 
-    if(!name || !price){ status.innerText="Fill name and price ❌"; return; }
+    if(!name || !price){ status.innerText="Fill all fields! ❌"; return; }
     status.innerText = "Processing... ⏳";
 
     if(file){
@@ -170,26 +155,18 @@ window.saveProduct = async function(){
         reader.readAsDataURL(file);
         reader.onload = async () => {
             const imgData = reader.result;
-            try {
-                if(editId){
-                    await updateDoc(doc(db, "products", editId), { productName: name, price: Number(price), imageUrl: imgData });
-                    status.innerText="Updated ✅"; editId = null;
-                } else {
-                    await addDoc(collection(db, "products"), { productName: name, price: Number(price), imageUrl: imgData, createdAt: serverTimestamp() });
-                    status.innerText="Added ✅";
-                }
-                clearForm();
-                setTimeout(() => { status.innerText = ""; }, 3000);
-            } catch (err) { status.innerText = "Error ❌"; }
+            if(editId){
+                await updateDoc(doc(db, "products", editId), { productName: name, price: Number(price), imageUrl: imgData });
+                editId = null;
+            } else {
+                await addDoc(collection(db, "products"), { productName: name, price: Number(price), imageUrl: imgData, createdAt: serverTimestamp() });
+            }
+            clearForm(); status.innerText="Success ✅";
         }
     } else if(editId) {
-        try {
-            await updateDoc(doc(db, "products", editId), { productName: name, price: Number(price) });
-            status.innerText="Updated ✅"; editId = null;
-            clearForm();
-            setTimeout(() => { status.innerText = ""; }, 3000);
-        } catch (err) { status.innerText = "Error ❌"; }
-    } else { status.innerText="Select an image ❌"; }
+        await updateDoc(doc(db, "products", editId), { productName: name, price: Number(price) });
+        editId = null; clearForm(); status.innerText="Updated ✅";
+    }
 }
 
 function loadProducts(){
@@ -199,55 +176,40 @@ function loadProducts(){
         document.getElementById("total").innerText = snapshot.size;
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
-            table.innerHTML += `
-            <tr>
-                <td><img src="${data.imageUrl}"></td>
-                <td>${data.productName}</td>
-                <td>₹${data.price}</td>
-                <td>
-                    <button class="edit-btn" onclick="editProduct('${docSnap.id}','${data.productName}','${data.price}')">Edit</button>
-                    <button class="delete-btn" onclick="deleteProduct('${docSnap.id}')">Delete</button>
-                </td>
-            </tr>`;
+            table.innerHTML += `<tr><td><img src="${data.imageUrl}" class="order-img"></td><td>${data.productName}</td><td>₹${data.price}</td><td><button class="edit-btn" onclick="editProduct('${docSnap.id}','${data.productName}','${data.price}')">Edit</button><button class="delete-btn" onclick="deleteProduct('${docSnap.id}')">Delete</button></td></tr>`;
         });
     });
 }
 
-/* ORDER STATUS UPDATE LOGIC */
+/* UPDATE STATUS LOGIC */
 window.updateOrderStatus = async function(orderId, newStatus) {
     try {
         await updateDoc(doc(db, "orders", orderId), { status: newStatus });
-        console.log("Status Updated ✅");
-    } catch (err) { alert("Error updating status!"); }
+        console.log("Status Updated to: " + newStatus);
+    } catch (err) { alert("Firebase Rule Error: Update permission missing!"); }
 }
 
 function loadOrders(){
-    const ordersQuery = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-    onSnapshot(ordersQuery, (snapshot) => {
+    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
         const table = document.getElementById("orders-table");
         table.innerHTML = "";
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
             const orderId = docSnap.id;
-            
-            // Status based colors
             const statusColor = data.status === 'Delivered' ? '#28a745' : (data.status === 'Shipped' ? '#007bff' : '#ef6c00');
-
+            
             table.innerHTML += `
             <tr>
-                <td><img src="${data.imageUrl || 'image.png'}"></td>
-                <td>${data.productName}</td>
+                <td><img src="${data.imageUrl || 'image.png'}" class="order-img"></td>
+                <td><b>${data.productName}</b></td>
                 <td>₹${data.price}</td>
-                <td class="buyer-cell">
+                <td class="buyer-info-box">
                     <span class="buyer-name">${data.buyerName || 'Unknown'}</span>
-                    <div class="buyer-contact">
-                        📞 ${data.buyerMobile || 'N/A'}<br>
-                        📍 ${data.buyerAddress || 'N/A'}<br>
-                        📧 <small>${data.user}</small>
-                    </div>
+                    📞 ${data.buyerMobile || 'N/A'}<br>📍 ${data.buyerAddress || 'N/A'}<br>📧 <small>${data.user}</small>
                 </td>
                 <td>
-                    <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)" style="color: ${statusColor}; border-color: ${statusColor};">
+                    <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)" style="color:${statusColor}; border-color:${statusColor};">
                         <option value="Pending" ${data.status === 'Pending' ? 'selected' : ''}>Pending</option>
                         <option value="Shipped" ${data.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
                         <option value="Delivered" ${data.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
@@ -258,27 +220,9 @@ function loadOrders(){
     });
 }
 
-window.editProduct = function(id, name, price){
-    showTab('addProduct');
-    document.getElementById("pName").value = name;
-    document.getElementById("pPrice").value = price;
-    document.getElementById("form-title").innerText = "Edit Product";
-    document.getElementById("save-btn").innerText = "Update Product";
-    editId = id;
-}
-
-window.deleteProduct = async function(id){
-    if(confirm("Delete this product?")){ await deleteDoc(doc(db, "products", id)); }
-}
-
-window.clearForm = function(){
-    document.getElementById("pName").value = "";
-    document.getElementById("pPrice").value = "";
-    document.getElementById("pImage").value = "";
-    document.getElementById("form-title").innerText = "Add Product";
-    document.getElementById("save-btn").innerText = "Save Product";
-}
+window.editProduct = function(id, name, price){ showTab('addProduct'); document.getElementById("pName").value = name; document.getElementById("pPrice").value = price; editId = id; }
+window.deleteProduct = async function(id){ if(confirm("Delete product?")) await deleteDoc(doc(db, "products", id)); }
+window.clearForm = function(){ document.getElementById("pName").value=""; document.getElementById("pPrice").value=""; document.getElementById("pImage").value=""; }
 </script>
-
 </body>
 </html>
