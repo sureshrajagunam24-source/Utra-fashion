@@ -6,101 +6,124 @@
 <title>Loyal Fashion - Premium Store</title>
 
 <style>
-body{background:#f1f3f6;font-family:Segoe UI;margin:0; overflow-x: hidden;}
-.header{background:#000;color:#fff;padding:15px 50px;display:flex;align-items:center;justify-content:space-between; position: sticky; top: 0; z-index: 1000;}
-.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;padding:30px}
-.product-card{background:#fff;padding:15px;border-radius:10px;text-align:center; box-shadow: 0 4px 8px rgba(0,0,0,0.05);}
-.product-card img{width:100%;height:250px;object-fit:cover;border-radius:8px}
-.buy-btn{background:#000;color:#fff;border:none;padding:10px;width:100%;margin-top:10px;cursor:pointer; font-weight: bold;}
-.cart-btn{background:#28a745;color:#fff;border:none;padding:10px;width:100%;margin-top:5px;cursor:pointer; font-weight: bold;}
-.login-btn{background:#fff;color:#000;padding:8px 15px;border:none;border-radius:5px;font-weight:bold;cursor:pointer}
-#cartCount{background:red;color:white;padding:2px 6px;border-radius:50%; font-size: 12px; position: relative; top: -10px; left: -10px;}
+:root { --primary: #ff3f6c; --dark: #282c3f; --light: #f5f5f6; }
+body{background:#fff;font-family:Segoe UI, Arial;margin:0; overflow-x: hidden; color: var(--dark);}
 
-/* LOGIN MODAL */
-.modal{ display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:25px; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index: 3000; width: 300px;}
-.modal input{width:90%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px;}
+/* HEADER */
+.header{background:#fff; padding:10px 50px; display:flex; align-items:center; justify-content:space-between; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
+.logo-section { display:flex; align-items:center; gap:12px; cursor: pointer; }
+.logo-section b { font-size: 20px; letter-spacing: 1px; color: #000; }
 
-/* PROFILE SIDEBAR */
-#profileSidebar {
-    position: fixed; top: 0; right: -350px; width: 300px; height: 100%; 
-    background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); 
-    z-index: 4000; transition: 0.4s; padding: 25px; display: flex; flex-direction: column;
-}
-#profileSidebar input, #profileSidebar textarea {
-    width: 90%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; font-family: inherit;
-}
-.sidebar-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background: rgba(0,0,0,0.5); z-index: 3500;
-}
+/* CATEGORY NAV */
+.nav-links { display: flex; gap: 25px; font-weight: bold; font-size: 14px; }
+.nav-links span { cursor: pointer; padding: 10px 0; border-bottom: 2px solid transparent; transition: 0.3s; }
+.nav-links span:hover { border-bottom: 2px solid var(--primary); color: var(--primary); }
 
-/* AVATAR STYLE */
-.user-info{display:none; align-items:center; gap:10px; color:white; cursor:pointer;}
+/* SEARCH & ICONS */
+.search-container { background: var(--light); padding: 8px 15px; border-radius: 4px; display: flex; align-items: center; width: 300px; }
+.search-container input { background: none; border: none; outline: none; width: 100%; font-size: 13px; }
+
+.action-icons { display: flex; align-items: center; gap: 20px; }
+.icon-btn { text-align: center; cursor: pointer; position: relative; font-size: 12px; font-weight: bold; }
+
+/* DYNAMIC AVATAR */
 .avatar-circle {
-    width:35px; height:35px; background:#007bff; color:white; border-radius:50%; 
-    display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:18px; border:2px solid white;
+    width:32px; height:32px; background:var(--dark); color:white; border-radius:50%; 
+    display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; margin: 0 auto;
 }
-.side-avatar {
-    width:70px; height:70px; background:#000; color:white; border-radius:50%; 
-    display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:30px; margin:0 auto; border:3px solid #000;
-}
+
+/* BANNER SLIDER */
+.banner-container { width: 100%; height: 350px; overflow: hidden; position: relative; background: #eee; }
+.banner-slide { width: 100%; height: 100%; object-fit: cover; display: none; transition: 0.5s; }
+.banner-slide.active { display: block; }
+
+/* PRODUCT GRID */
+.product-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:30px; padding:40px 50px;}
+.product-card{background:#fff; padding:0; border-radius:0; text-align:left; transition: 0.3s; cursor: pointer;}
+.product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.product-card img{width:100%; height:280px; object-fit:cover; border-radius:4px;}
+.product-info { padding: 10px; }
+.product-info h3 { margin: 5px 0; font-size: 15px; color: #535766; }
+.product-info p { font-weight: bold; margin: 5px 0; font-size: 16px; }
+
+.buy-now-btn { background: var(--dark); color: #fff; border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; }
+.cart-add-btn { background: #fff; color: var(--dark); border: 1px solid #d4d5d9; padding: 8px; width: 100%; margin-bottom: 5px; cursor: pointer; font-weight: bold; }
+
+/* SIDEBAR & MODAL */
+#profileSidebar { position: fixed; top: 0; right: -350px; width: 300px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); z-index: 4000; transition: 0.4s; padding: 25px; }
+#profileSidebar input, #profileSidebar textarea { width: 92%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 4px; }
+.sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3500; }
+.modal { display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:25px; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index: 3000; width: 300px;}
+#cartCount { background: var(--primary); color: white; padding: 2px 6px; border-radius: 50%; font-size: 10px; position: absolute; top: -8px; right: -8px; }
 </style>
 </head>
 
 <body>
 
 <div class="header">
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div class="logo-section" onclick="location.reload()">
         <img src="image.png" width="40" style="border-radius:50%">
         <b>LOYAL FASHION</b>
     </div>
 
-    <div style="display:flex; align-items:center; gap:15px;">
-        <div class="user-info" id="userInfo" onclick="openProfile()">
+    <div class="nav-links">
+        <span>MEN</span>
+        <span>WOMEN</span>
+        <span>KIDS</span>
+        <span>BEAUTY</span>
+    </div>
+
+    <div class="search-container">
+        <input type="text" placeholder="Search for products, brands and more">
+    </div>
+
+    <div class="action-icons">
+        <div class="icon-btn" id="loginBtn" onclick="openLogin()">
+            👤<br>Login
+        </div>
+        <div class="icon-btn" id="userInfo" style="display:none;" onclick="openProfile()">
             <div class="avatar-circle" id="userLetter"></div>
             <span id="userName">Profile</span>
         </div>
-        <div style="color:white; cursor:pointer;" onclick="window.location.href='cart.html'">
-            🛒<span id="cartCount">0</span>
+        <div class="icon-btn" onclick="window.location.href='cart.html'">
+            🛒<span id="cartCount">0</span><br>Cart
         </div>
-        <button onclick="window.location.href='my-orders.html'" style="cursor:pointer;">Orders</button>
-        <button class="login-btn" onclick="openLogin()" id="loginBtn">Login</button>
     </div>
+</div>
+
+<div class="banner-container">
+    <img src="https://assets.ajio.com/cms/AJIO/WEB/D-1.0-UHP-21022025-MainBanner-Z1-P5-5090.jpg" class="banner-slide active">
+    <img src="https://assets.ajio.com/cms/AJIO/WEB/D-1.0-UHP-21022025-MainBanner-Z1-P2-AdidasPuma-Min40.jpg" class="banner-slide">
 </div>
 
 <div class="product-grid" id="product-list"></div>
 
 <div class="sidebar-overlay" id="overlay" onclick="closeProfile()"></div>
-
 <div id="profileSidebar">
-    <button onclick="closeProfile()" style="align-self:flex-end; background:none; border:none; font-size:20px; cursor:pointer;">✖</button>
-    <div style="text-align:center;">
-        <div class="side-avatar" id="sideLetter"></div>
-        <h3 id="sideEmail" style="font-size:14px; margin:10px 0; word-break: break-all; color: #333;">User Email</h3>
+    <button onclick="closeProfile()" style="float:right; border:none; background:none; font-size:20px; cursor:pointer;">✖</button>
+    <div style="text-align:center; margin-top:30px;">
+        <div id="sideLetter" style="width:60px; height:60px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; margin:0 auto;"></div>
+        <p id="sideEmail" style="font-size:12px; color:#888; margin-top:10px;"></p>
     </div>
-    <hr style="width:100%; margin:15px 0; border:0; border-top:1px solid #eee;">
-    
-    <label style="font-size:12px; font-weight:bold; color: #555;">FULL NAME</label>
-    <input type="text" id="sideName" placeholder="Enter your name">
-    
-    <label style="font-size:12px; font-weight:bold; color: #555;">MOBILE</label>
-    <input type="number" id="sideMobile" placeholder="Enter mobile number">
-    
-    <label style="font-size:12px; font-weight:bold; color: #555;">ADDRESS</label>
-    <textarea id="sideAddress" rows="3" placeholder="Enter delivery address"></textarea>
-
-    <button onclick="saveProfile()" style="background:#28a745; color:white; border:none; padding:12px; border-radius:5px; cursor:pointer; font-weight:bold;">💾 Save Details</button>
-    <button onclick="logout()" style="margin-top:auto; background:none; color:#ff4d4d; border:1px solid #ff4d4d; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">🚪 Logout</button>
-    <p id="sideStatus" style="font-size:12px; text-align:center; margin-top:10px; font-weight:bold;"></p>
+    <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+    <label style="font-size:11px; font-weight:bold;">FULL NAME</label>
+    <input type="text" id="sideName" placeholder="Enter name">
+    <label style="font-size:11px; font-weight:bold;">MOBILE</label>
+    <input type="number" id="sideMobile" placeholder="Enter mobile">
+    <label style="font-size:11px; font-weight:bold;">ADDRESS</label>
+    <textarea id="sideAddress" rows="3" placeholder="Enter address"></textarea>
+    <button onclick="saveProfile()" style="background:var(--primary); color:white; border:none; padding:12px; width:100%; font-weight:bold; cursor:pointer;">SAVE DETAILS</button>
+    <button onclick="window.location.href='my-orders.html'" style="background:#fff; color:#000; border:1px solid #ddd; padding:10px; width:100%; margin-top:10px; font-weight:bold; cursor:pointer;">MY ORDERS</button>
+    <button onclick="logout()" style="margin-top:20px; color:red; background:none; border:none; cursor:pointer; width:100%; font-weight:bold;">Logout</button>
 </div>
 
 <div class="modal" id="loginBox">
-    <h3 style="margin-top:0;">Buyer Login</h3>
-    <input type="email" id="email" placeholder="Email">
+    <h3 style="margin:0 0 15px 0;">Login or Signup</h3>
+    <input type="email" id="email" placeholder="Enter Email">
     <input type="password" id="password" placeholder="Password">
-    <button onclick="login()" style="width:100%; background:black; color:white; padding:10px; border:none; cursor:pointer; font-weight:bold;">Login</button>
-    <button onclick="signup()" style="width:100%; background:gray; color:white; padding:10px; border:none; margin-top:10px; cursor:pointer;">Signup</button>
-    <button onclick="closeLogin()" style="width:100%; background:none; color:red; border:none; margin-top:10px; cursor:pointer;">Close</button>
+    <button onclick="login()" style="width:100%; background:var(--primary); color:white; border:none; padding:12px; cursor:pointer; font-weight:bold;">CONTINUE</button>
+    <p style="font-size:11px; text-align:center; color:#888; margin-top:15px;" onclick="signup()">New to Loyal Fashion? <span style="color:var(--primary); font-weight:bold; cursor:pointer;">Create Account</span></p>
+    <button onclick="closeLogin()" style="width:100%; background:none; border:none; color:#888; margin-top:10px; cursor:pointer;">Close</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -121,89 +144,74 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const auth=firebase.auth();
 
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-document.getElementById("cartCount").innerText = cart.length;
+/* BANNER SLIDER */
+let slideIdx = 0;
+function showSlides() {
+    let slides = document.querySelectorAll(".banner-slide");
+    slides.forEach(s => s.classList.remove("active"));
+    slideIdx++;
+    if (slideIdx > slides.length) slideIdx = 1;
+    slides[slideIdx-1].classList.add("active");
+    setTimeout(showSlides, 4000);
+}
+showSlides();
 
-/* AUTH STATE & LETTER AVATAR LOGIC */
+/* AUTH STATE */
 auth.onAuthStateChanged(user=>{
-    const btn=document.getElementById("loginBtn");
+    const loginBtn=document.getElementById("loginBtn");
     const userInfo=document.getElementById("userInfo");
-    const userName=document.getElementById("userName");
-    const userLetter=document.getElementById("userLetter");
-    const sideLetter=document.getElementById("sideLetter");
-
     if(user && user.email !== "sureshrajagunam24@gmail.com"){
-        btn.style.display="none";
-        userInfo.style.display="flex";
-        
-        // Letter Avatar Setup
+        loginBtn.style.display="none";
+        userInfo.style.display="block";
         const firstLetter = user.email.charAt(0).toUpperCase();
-        userLetter.innerText = firstLetter;
-        if(sideLetter) sideLetter.innerText = firstLetter;
-
-        userName.innerText = user.email.split('@')[0].toUpperCase();
+        document.getElementById("userLetter").innerText = firstLetter;
+        document.getElementById("userName").innerText = user.email.split('@')[0].toUpperCase();
     } else {
-        btn.style.display="block";
+        loginBtn.style.display="block";
         userInfo.style.display="none";
-        btn.innerText="Login";
-        btn.onclick=openLogin;
     }
 });
 
-/* SIDEBAR LOGIC */
-window.openProfile = function() {
-    const user = auth.currentUser;
-    if(!user) { openLogin(); return; }
+/* SIDEBAR & PROFILE */
+function openProfile() {
     document.getElementById("profileSidebar").style.right = "0";
     document.getElementById("overlay").style.display = "block";
+    const user = auth.currentUser;
     document.getElementById("sideEmail").innerText = user.email;
-
+    document.getElementById("sideLetter").innerText = user.email.charAt(0).toUpperCase();
     db.collection("users").doc(user.uid).get().then(doc => {
         if(doc.exists) {
-            const d = doc.data();
-            document.getElementById("sideName").value = d.name || "";
-            document.getElementById("sideMobile").value = d.mobile || "";
-            document.getElementById("sideAddress").value = d.address || "";
+            document.getElementById("sideName").value = doc.data().name || "";
+            document.getElementById("sideMobile").value = doc.data().mobile || "";
+            document.getElementById("sideAddress").value = doc.data().address || "";
         }
     });
 }
-window.closeProfile = function() {
+function closeProfile() {
     document.getElementById("profileSidebar").style.right = "-350px";
     document.getElementById("overlay").style.display = "none";
 }
-
-/* SAVE PROFILE */
-window.saveProfile = function() {
+function saveProfile() {
     const user = auth.currentUser;
-    const name = document.getElementById("sideName").value.trim();
-    const mobile = document.getElementById("sideMobile").value.trim();
-    const address = document.getElementById("sideAddress").value.trim();
-    const status = document.getElementById("sideStatus");
-
-    if(!name || !mobile || !address) { status.innerText="Fill all fields! ❌"; status.style.color="red"; return; }
-
-    db.collection("users").doc(user.uid).set({ name, mobile, address, email: user.email }, {merge:true})
-    .then(() => {
-        status.innerText="Saved Successfully! ✅"; status.style.color="green";
-        setTimeout(()=> status.innerText="", 2000);
-    });
+    const name = document.getElementById("sideName").value;
+    const mobile = document.getElementById("sideMobile").value;
+    const address = document.getElementById("sideAddress").value;
+    db.collection("users").doc(user.uid).set({name, mobile, address, email:user.email}, {merge:true})
+    .then(() => alert("Profile Saved ✅"));
 }
 
-/* LOGIN FUNCTIONS */
-function openLogin(){ document.getElementById("loginBox").style.display="block"; }
-function closeLogin(){ document.getElementById("loginBox").style.display="none"; }
-
-function login(){
-    const email=document.getElementById("email").value;
-    const password=document.getElementById("password").value;
-    auth.signInWithEmailAndPassword(email,password).then(()=> { alert("Login Success ✅"); closeLogin(); }).catch(err=>alert(err.message));
+/* AUTH FUNCTIONS */
+function openLogin() { document.getElementById("loginBox").style.display="block"; }
+function closeLogin() { document.getElementById("loginBox").style.display="none"; }
+function login() {
+    auth.signInWithEmailAndPassword(document.getElementById("email").value, document.getElementById("password").value)
+    .then(() => { closeLogin(); location.reload(); }).catch(err => alert(err.message));
 }
-function signup(){
-    const email=document.getElementById("email").value;
-    const password=document.getElementById("password").value;
-    auth.createUserWithEmailAndPassword(email,password).then(()=> { alert("Account Created ✅"); closeLogin(); }).catch(err=>alert(err.message));
+function signup() {
+    auth.createUserWithEmailAndPassword(document.getElementById("email").value, document.getElementById("password").value)
+    .then(() => { alert("Account Created ✅"); closeLogin(); }).catch(err => alert(err.message));
 }
-function logout() { if(confirm("Logout?")) auth.signOut().then(()=> location.reload()); }
+function logout() { auth.signOut().then(() => location.reload()); }
 
 /* LOAD PRODUCTS */
 db.collection("products").orderBy("createdAt","desc").onSnapshot(snapshot=>{
@@ -214,43 +222,30 @@ db.collection("products").orderBy("createdAt","desc").onSnapshot(snapshot=>{
         list.innerHTML+=`
         <div class="product-card">
             <img src="${data.imageUrl}">
-            <h3>${data.productName}</h3>
-            <p>₹${data.price}</p>
-            <button class="cart-btn" onclick="addToCart('${doc.id}','${data.productName}',${data.price},'${data.imageUrl}')">Add to Cart</button>
-            <button class="buy-btn" onclick="buyNow('${doc.id}','${data.productName}',${data.price},'${data.imageUrl}')">Buy Now</button>
+            <div class="product-info">
+                <h3>${data.productName}</h3>
+                <p>₹${data.price}</p>
+                <button class="cart-add-btn" onclick="addToCart('${doc.id}','${data.productName}',${data.price},'${data.imageUrl}')">ADD TO CART</button>
+                <button class="buy-now-btn" onclick="buyNow('${doc.id}','${data.productName}',${data.price},'${data.imageUrl}')">BUY NOW</button>
+            </div>
         </div>`;
     });
 });
 
-/* BUY NOW LOGIC */
+/* BUY & CART LOGIC */
 window.buyNow = function(id, name, price, image) {
     const user = auth.currentUser;
-    if(!user || user.email === "sureshrajagunam24@gmail.com") { alert("⚠ Please Login as Buyer First"); openLogin(); return; }
-
+    if(!user) { openLogin(); return; }
     db.collection("users").doc(user.uid).get().then(doc => {
-        if(!doc.exists || !doc.data().address || !doc.data().mobile) {
-            alert("⚠ Please update your Name, Mobile and Address in Profile Sidebar first!");
-            openProfile();
-            return;
-        }
-        
-        const userData = doc.data();
+        if(!doc.exists || !doc.data().address) { alert("Please update address in Profile!"); openProfile(); return; }
         db.collection("orders").add({
-            user: user.email,
-            buyerName: userData.name,
-            buyerMobile: userData.mobile,
-            buyerAddress: userData.address,
-            productId: id,
-            productName: name,
-            price: price,
-            imageUrl: image,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => alert("Order Placed Successfully ✅ Address fetched from profile!"));
+            user: user.email, buyerName: doc.data().name, buyerAddress: doc.data().address, 
+            productName: name, price, imageUrl: image, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => alert("Order Placed ✅"));
     });
 }
-
 function addToCart(id,name,price,image){
-    if(!auth.currentUser || auth.currentUser.email === "sureshrajagunam24@gmail.com"){ alert("⚠ Login as Buyer"); openLogin(); return; }
+    if(!auth.currentUser){ openLogin(); return; }
     cart.push({id,name,price,image});
     localStorage.setItem("cart",JSON.stringify(cart));
     document.getElementById("cartCount").innerText=cart.length;
