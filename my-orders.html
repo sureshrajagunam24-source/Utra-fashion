@@ -1,102 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>My Orders - Loyal Fashion</title>
-
-<style>
-body{font-family:Segoe UI;background:#f4f6f9;margin:0}
-.header{background:#000;color:#fff;padding:15px 30px;display:flex;justify-content:space-between;align-items:center}
-.order-container{padding:30px}
-.order-card{
-background:#fff;
-padding:15px;
-margin-bottom:15px;
-border-radius:10px;
-display:flex;
-align-items:center;
-gap:15px;
-box-shadow:0 5px 15px rgba(0,0,0,0.05)
-}
-.order-card img{
-width:80px;
-height:80px;
-object-fit:cover;
-border-radius:8px
-}
-button{
-padding:6px 12px;
-border:none;
-border-radius:5px;
-cursor:pointer
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Loyal Fashion</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .order-card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; align-items: center; gap: 20px; }
+        .order-card img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+        .order-info { flex: 1; }
+        .order-info h3 { margin: 0 0 5px 0; font-size: 16px; }
+        .order-info p { margin: 0; color: #666; font-size: 14px; }
+        .status { background: #e8f5e9; color: #2e7d32; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .back-btn { background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
 <div class="header">
-<h2>📦 My Orders</h2>
-<button onclick="window.location.href='index.html'">Back</button>
+    <h2>📦 My Purchase History</h2>
+    <button class="back-btn" onclick="window.location.href='index.html'">Back to Shop</button>
 </div>
 
-<div class="order-container" id="orderList">
-Loading Orders...
-</div>
+<div id="ordersList">
+    </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig={
-apiKey:"AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
-authDomain:"e-commerce-wepsite.firebaseapp.com",
-projectId:"e-commerce-wepsite",
-storageBucket:"e-commerce-wepsite.appspot.com",
-messagingSenderId:"394408704286",
-appId:"1:394408704286:web:9ad690a946b225ab20f10f"
+const firebaseConfig = {
+    apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
+    authDomain: "e-commerce-wepsite.firebaseapp.com",
+    projectId: "e-commerce-wepsite",
+    storageBucket: "e-commerce-wepsite.appspot.com",
+    messagingSenderId: "394408704286",
+    appId: "1:394408704286:web:9ad690a946b225ab20f10f"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-const auth=firebase.auth();
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-auth.onAuthStateChanged(user=>{
-if(!user){
-alert("Please Login First");
-window.location.href="index.html";
-return;
-}
+/* LOAD LOGGED IN USER'S ORDERS ONLY */
+auth.onAuthStateChanged(user => {
+    if (!user) {
+        window.location.href = 'index.html';
+        return;
+    }
 
-db.collection("orders")
-.where("user","==",user.email)
-.orderBy("createdAt","desc")
-.onSnapshot(snapshot=>{
+    // Filter orders by current user email
+    db.collection("orders")
+      .where("user", "==", user.email)
+      .orderBy("createdAt", "desc")
+      .onSnapshot(snapshot => {
+          const list = document.getElementById("ordersList");
+          list.innerHTML = "";
 
-const list=document.getElementById("orderList");
-list.innerHTML="";
+          if (snapshot.empty) {
+              list.innerHTML = "<div style='text-align:center; padding:50px;'><h3>No orders yet! Start shopping. 🛍</h3></div>";
+              return;
+          }
 
-if(snapshot.empty){
-list.innerHTML="<h3>No Orders Found</h3>";
-return;
-}
-
-snapshot.forEach(doc=>{
-const data=doc.data();
-
-list.innerHTML+=`
-<div class="order-card">
-<img src="${data.imageUrl}">
-<div>
-<b>${data.productName}</b><br>
-₹${data.price}
-</div>
-</div>`;
-});
-});
+          snapshot.forEach(doc => {
+              const data = doc.data();
+              list.innerHTML += `
+              <div class="order-card">
+                  <img src="${data.imageUrl}" alt="product">
+                  <div class="order-info">
+                      <h3>${data.productName}</h3>
+                      <p>Price: ₹${data.price}</p>
+                      <p style="font-size: 11px; color: #999;">Ordered on: ${data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Processing...'}</p>
+                  </div>
+                  <span class="status">✅ ORDERED</span>
+              </div>`;
+          });
+      });
 });
 </script>
-
 </body>
 </html>
