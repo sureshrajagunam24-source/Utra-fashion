@@ -16,8 +16,8 @@ body{background:#fff;font-family:'Segoe UI', Arial, sans-serif;margin:0; overflo
 
 /* CATEGORY NAV */
 .nav-links { display: flex; gap: 25px; font-weight: bold; font-size: 14px; }
-.nav-links span { cursor: pointer; padding: 10px 0; border-bottom: 2px solid transparent; transition: 0.3s; }
-.nav-links span:hover { border-bottom: 2px solid var(--primary); color: var(--primary); }
+.nav-links span { cursor: pointer; padding: 10px 0; transition: 0.3s; }
+.nav-links span:hover { color: var(--primary); }
 
 /* SEARCH & ACTION ICONS */
 .search-container { background: var(--light); padding: 8px 15px; border-radius: 4px; display: flex; align-items: center; width: 300px; }
@@ -39,9 +39,8 @@ body{background:#fff;font-family:'Segoe UI', Arial, sans-serif;margin:0; overflo
 
 /* PRODUCT GRID */
 .product-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:30px; padding:40px 50px;}
-.product-card{background:#fff; padding:0; border-radius:0; text-align:left; transition: 0.3s; cursor: pointer; border: 1px solid transparent;}
-.product-card:hover { border: 1px solid #eaeaec; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-.product-card img{width:100%; height:320px; object-fit:cover; border-radius:0;}
+.product-card{background:#fff; padding:0; border-radius:0; text-align:left; transition: 0.3s; cursor: pointer;}
+.product-card img{width:100%; height:320px; object-fit:cover; border-radius:4px;}
 .product-info { padding: 15px; }
 .product-info h3 { margin: 5px 0; font-size: 15px; color: #535766; font-weight: 500; }
 .product-info p { font-weight: bold; margin: 5px 0; font-size: 16px; color: #000; }
@@ -56,7 +55,7 @@ body{background:#fff;font-family:'Segoe UI', Arial, sans-serif;margin:0; overflo
 #profileSidebar input, #profileSidebar textarea { width: 92%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 4px; }
 .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3500; }
 .modal { display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:25px; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index: 3000; width: 300px;}
-#cartCount { background: var(--primary); color: white; padding: 2px 6px; border-radius: 50%; font-size: 10px; position: absolute; top: -8px; right: 0; }
+#cartCount { background: var(--primary); color: white; padding: 2px 6px; border-radius: 50%; font-size: 10px; position: absolute; top: -8px; right: 5px; }
 </style>
 </head>
 
@@ -75,13 +74,11 @@ body{background:#fff;font-family:'Segoe UI', Arial, sans-serif;margin:0; overflo
     </div>
 
     <div class="search-container">
-        <input type="text" placeholder="Search for products, brands and more">
+        <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="Search for products, brands and more">
     </div>
 
     <div class="action-icons">
-        <div class="icon-btn" id="loginBtn" onclick="openLogin()">
-            👤<br>Login
-        </div>
+        <div class="icon-btn" id="loginBtn" onclick="openLogin()">👤<br>Login</div>
         <div class="icon-btn" id="userInfo" style="display:none;" onclick="openProfile()">
             <div class="avatar-circle" id="userLetter"></div>
             <span id="userName">Profile</span>
@@ -104,14 +101,13 @@ body{background:#fff;font-family:'Segoe UI', Arial, sans-serif;margin:0; overflo
     <button onclick="closeProfile()" style="float:right; border:none; background:none; font-size:20px; cursor:pointer;">✖</button>
     <div style="text-align:center; margin-top:30px;">
         <div id="sideLetter" style="width:60px; height:60px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; margin:0 auto;"></div>
-        <p id="sideEmail" style="font-size:12px; color:#888; margin-top:10px;"></p>
     </div>
     <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
     <input type="text" id="sideName" placeholder="Full Name">
     <input type="number" id="sideMobile" placeholder="Mobile Number">
     <textarea id="sideAddress" rows="3" placeholder="Full Delivery Address"></textarea>
     <button onclick="saveProfile()" style="background:var(--primary); color:white; border:none; padding:12px; width:100%; font-weight:bold; cursor:pointer;">SAVE DETAILS</button>
-    <button onclick="logout()" style="margin-top:20px; color:red; background:none; border:none; cursor:pointer; width:100%; font-weight:bold;">Logout</button>
+    <button onclick="auth.signOut().then(() => location.reload())" style="margin-top:20px; color:red; background:none; border:none; cursor:pointer; width:100%; font-weight:bold;">Logout</button>
 </div>
 
 <div class="modal" id="loginBox">
@@ -141,11 +137,9 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const auth=firebase.auth();
 
-/* CART INITIALIZATION */
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 document.getElementById("cartCount").innerText = cart.length;
 
-/* BANNER SLIDER LOGIC */
 let slideIdx = 0;
 function showSlides() {
     let slides = document.querySelectorAll(".banner-slide");
@@ -153,11 +147,10 @@ function showSlides() {
     slideIdx++;
     if (slideIdx > slides.length) slideIdx = 1;
     slides[slideIdx-1].classList.add("active");
-    setTimeout(showSlides, 4000);
+    setTimeout(showSlides, 3000);
 }
 showSlides();
 
-/* AUTH STATE & LETTER AVATAR */
 auth.onAuthStateChanged(user=>{
     const loginBtn=document.getElementById("loginBtn");
     const userInfo=document.getElementById("userInfo");
@@ -173,12 +166,25 @@ auth.onAuthStateChanged(user=>{
     }
 });
 
-/* SIDEBAR LOGIC */
+/* SEARCH LOGIC */
+window.searchProducts = function() {
+    const input = document.getElementById('searchInput').value.toUpperCase();
+    const productGrid = document.getElementById('product-list');
+    const cards = productGrid.getElementsByClassName('product-card');
+
+    for (let i = 0; i < cards.length; i++) {
+        const title = cards[i].querySelector(".product-info h3");
+        if (title) {
+            const txtValue = title.textContent || title.innerText;
+            cards[i].style.display = txtValue.toUpperCase().indexOf(input) > -1 ? "" : "none";
+        }
+    }
+}
+
 function openProfile() {
     document.getElementById("profileSidebar").style.right = "0";
     document.getElementById("overlay").style.display = "block";
     const user = auth.currentUser;
-    document.getElementById("sideEmail").innerText = user.email;
     document.getElementById("sideLetter").innerText = user.email.charAt(0).toUpperCase();
     db.collection("users").doc(user.uid).get().then(doc => {
         if(doc.exists) {
@@ -188,39 +194,33 @@ function openProfile() {
         }
     });
 }
+
 function closeProfile() {
     document.getElementById("profileSidebar").style.right = "-350px";
     document.getElementById("overlay").style.display = "none";
 }
+
 function saveProfile() {
     const user = auth.currentUser;
     const name = document.getElementById("sideName").value.trim();
     const mobile = document.getElementById("sideMobile").value.trim();
     const address = document.getElementById("sideAddress").value.trim();
-    if(!name || !mobile || !address) { alert("Please fill all details!"); return; }
+    if(!name || !mobile || !address) { alert("Fill all details!"); return; }
     db.collection("users").doc(user.uid).set({name, mobile, address, email:user.email}, {merge:true})
-    .then(() => alert("Profile Saved Successfully! ✅"));
+    .then(() => alert("Profile Saved ✅"));
 }
 
-/* LOGIN & SIGNUP */
 function openLogin() { document.getElementById("loginBox").style.display="block"; }
 function closeLogin() { document.getElementById("loginBox").style.display="none"; }
 function login() {
-    const email = document.getElementById("email").value.trim();
-    const pass = document.getElementById("password").value;
-    if(!email || !pass) { alert("Fill all fields!"); return; }
-    auth.signInWithEmailAndPassword(email, pass)
+    auth.signInWithEmailAndPassword(document.getElementById("email").value.trim(), document.getElementById("password").value)
     .then(() => { closeLogin(); location.reload(); }).catch(err => alert(err.message));
 }
 function signup() {
-    const email = document.getElementById("email").value.trim();
-    const pass = document.getElementById("password").value;
-    auth.createUserWithEmailAndPassword(email, pass)
+    auth.createUserWithEmailAndPassword(document.getElementById("email").value.trim(), document.getElementById("password").value)
     .then(() => { alert("Account Created ✅"); closeLogin(); }).catch(err => alert(err.message));
 }
-function logout() { if(confirm("Logout?")) auth.signOut().then(() => location.reload()); }
 
-/* LOAD PRODUCTS WITH BOTH BUTTONS */
 db.collection("products").orderBy("createdAt","desc").onSnapshot(snapshot=>{
     const list=document.getElementById("product-list");
     list.innerHTML="";
@@ -241,30 +241,21 @@ db.collection("products").orderBy("createdAt","desc").onSnapshot(snapshot=>{
     });
 });
 
-/* BUY & CART LOGIC */
 window.buyNow = function(id, name, price, image) {
     const user = auth.currentUser;
     if(!user) { openLogin(); return; }
     db.collection("users").doc(user.uid).get().then(doc => {
-        if(!doc.exists || !doc.data().address) { 
-            alert("⚠ Update your Address in Profile first!"); 
-            openProfile(); 
-            return; 
-        }
+        if(!doc.exists || !doc.data().address) { alert("Update address in Profile!"); openProfile(); return; }
         db.collection("orders").add({
             user: user.email, buyerName: doc.data().name, buyerMobile: doc.data().mobile, buyerAddress: doc.data().address, 
             productName: name, price, imageUrl: image, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => alert("Order Placed Successfully ✅"));
+        }).then(() => alert("Order Placed ✅"));
     });
 }
 
 window.addToCart = function(id,name,price,image){
     const user = auth.currentUser;
-    if(!user || user.email === "sureshrajagunam24@gmail.com") { 
-        alert("⚠ Login as Buyer First"); 
-        openLogin(); 
-        return; 
-    }
+    if(!user || user.email === "sureshrajagunam24@gmail.com") { alert("Login as Buyer"); openLogin(); return; }
     cart.push({id,name,price,image});
     localStorage.setItem("cart",JSON.stringify(cart));
     document.getElementById("cartCount").innerText=cart.length;
