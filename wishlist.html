@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - Loyal Fashion</title>
+    <style>
+        :root { --primary: #ff3f6c; --dark: #282c3f; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        
+        .wish-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
+        .wish-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; position: relative; }
+        .wish-card:hover { transform: translateY(-5px); }
+        .wish-card img { width: 100%; height: 250px; object-fit: cover; }
+        
+        .wish-info { padding: 15px; text-align: center; }
+        .wish-info h3 { margin: 0 0 10px 0; font-size: 16px; color: var(--dark); }
+        
+        .remove-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; color: #ff4d4d; font-weight: bold; }
+        .add-cart-btn { background: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 0 0 12px 12px; }
+        
+        .back-btn { background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .empty-msg { text-align: center; padding: 100px; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2 style="margin:0;">❤️ My Favorites</h2>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Back to Store</button>
+</div>
+
+<div id="wishlistContainer" class="wish-grid">
+    </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
+    authDomain: "e-commerce-wepsite.firebaseapp.com",
+    projectId: "e-commerce-wepsite",
+    storageBucket: "e-commerce-wepsite.appspot.com",
+    messagingSenderId: "394408704286",
+    appId: "1:394408704286:web:9ad690a946b225ab20f10f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+auth.onAuthStateChanged(user => {
+    if (!user) { window.location.href = 'index.html'; return; }
+
+    // Fetch Wishlist items for current user
+    db.collection("wishlist")
+      .where("user", "==", user.email)
+      .onSnapshot(snapshot => {
+          const container = document.getElementById("wishlistContainer");
+          container.innerHTML = "";
+
+          if (snapshot.empty) {
+              container.innerHTML = "<div class='empty-msg'><h3>Your wishlist is empty! ❤️</h3><p>Start saving your favorite items.</p></div>";
+              return;
+          }
+
+          snapshot.forEach(docSnap => {
+              const data = docSnap.data();
+              const wishId = docSnap.id;
+
+              container.innerHTML += `
+              <div class="wish-card">
+                  <button class="remove-btn" onclick="removeFromWishlist('${wishId}')">✖</button>
+                  <img src="${data.imageUrl}" alt="product">
+                  <div class="wish-info">
+                      <h3>${data.productName}</h3>
+                  </div>
+                  <button class="add-cart-btn" onclick="moveTocart('${wishId}', '${data.productName}', '${data.imageUrl}')">ADD TO CART</button>
+              </div>`;
+          });
+      });
+});
+
+/* REMOVE FROM WISHLIST */
+window.removeFromWishlist = async function(id) {
+    if(confirm("Remove from favorites?")) {
+        await db.collection("wishlist").doc(id).delete();
+    }
+}
+
+/* MOVE TO CART LOGIC */
+window.moveTocart = function(wishId, name, image) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    // We don't have price in wishlist schema currently, so we can fetch it or use a default
+    cart.push({ name, image, price: "Check in Cart" }); 
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Moved to Cart! 🛒");
+}
+</script>
+</body>
+</html>
