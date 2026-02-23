@@ -2,39 +2,73 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Cart - Loyal Fashion</title>
+<title>Your Cart - Loyal Fashion</title>
+
 <style>
-body{font-family:Segoe UI;background:#f4f6f9;margin:0;padding:30px;}
-.cart-box{background:white;padding:20px;border-radius:10px;}
-img{width:80px;}
-.total{font-size:20px;font-weight:bold;margin-top:20px;}
+body{font-family:Segoe UI;background:#f4f6f9;margin:0}
+.header{background:#000;color:#fff;padding:15px 30px;display:flex;justify-content:space-between}
+.cart-container{padding:30px}
+.cart-item{background:#fff;padding:15px;margin-bottom:15px;border-radius:8px;display:flex;justify-content:space-between;align-items:center}
+button{padding:6px 12px;border:none;border-radius:5px;cursor:pointer}
+.remove{background:red;color:white}
+.checkout{background:green;color:white;padding:10px 20px}
 </style>
 </head>
 <body>
 
+<div class="header">
 <h2>🛒 Your Cart</h2>
+<button onclick="window.location.href='index.html'">Back</button>
+</div>
 
-<div class="cart-box" id="cart-items"></div>
-<div class="total" id="total"></div>
+<div class="cart-container" id="cartList"></div>
+
+<h3 style="padding-left:30px;">Total: ₹<span id="total">0</span></h3>
+<button class="checkout" onclick="checkout()" style="margin-left:30px;">Checkout</button>
 
 <script>
-const cart=JSON.parse(localStorage.getItem("cart"))||[];
-const box=document.getElementById("cart-items");
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+const list = document.getElementById("cartList");
+const totalEl = document.getElementById("total");
+
+function renderCart(){
+list.innerHTML="";
 let total=0;
 
-cart.forEach(item=>{
- total+=item.price;
- box.innerHTML+=`
-  <div>
-   <img src="${item.image}">
-   <p>${item.name}</p>
-   <p>₹${item.price}</p>
-  </div>
-  <hr>
- `;
+cart.forEach((item,index)=>{
+total+=item.price;
+
+list.innerHTML+=`
+<div class="cart-item">
+<div>
+<b>${item.name}</b><br>
+₹${item.price}
+</div>
+<button class="remove" onclick="removeItem(${index})">Remove</button>
+</div>`;
 });
 
-document.getElementById("total").innerText="Total: ₹"+total;
+totalEl.innerText=total;
+}
+
+function removeItem(index){
+cart.splice(index,1);
+localStorage.setItem("cart",JSON.stringify(cart));
+renderCart();
+}
+
+function checkout(){
+if(cart.length===0){
+alert("Cart is empty");
+return;
+}
+alert("Payment Successful ✅");
+localStorage.removeItem("cart");
+cart=[];
+renderCart();
+}
+
+renderCart();
 </script>
 
 </body>
