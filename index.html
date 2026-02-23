@@ -1,64 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LOYAL FASHION</title>
+<title>Loyal Fashion - Premium Store</title>
 
 <style>
-body{margin:0;font-family:Segoe UI;background:#f1f3f6}
-.header{background:#000;color:#fff;padding:15px 40px;display:flex;justify-content:space-between;align-items:center}
-.logo{display:flex;align-items:center;gap:10px}
-.logo img{width:40px;border-radius:50%}
-.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;padding:30px}
+body{background:#f1f3f6;font-family:Segoe UI;margin:0}
+.header{background:#000;color:#fff;padding:15px 50px;display:flex;align-items:center;justify-content:space-between}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;padding:30px}
 .product-card{background:#fff;padding:15px;border-radius:10px;text-align:center}
 .product-card img{width:100%;height:250px;object-fit:cover;border-radius:8px}
-button{padding:10px;border:none;cursor:pointer;border-radius:5px}
-.cart-btn{background:#28a745;color:#fff;width:100%;margin-top:5px}
-.buy-btn{background:#000;color:#fff;width:100%;margin-top:5px}
-.login-btn{background:#fff;color:#000}
-#cartCount{background:red;color:#fff;padding:3px 7px;border-radius:50%}
-#loginBox,#cartBox{display:none;position:fixed;top:20%;left:35%;background:#fff;padding:20px;border-radius:10px;width:300px;box-shadow:0 0 10px rgba(0,0,0,0.3)}
+.buy-btn{background:#000;color:#fff;border:none;padding:10px;width:100%;margin-top:10px;cursor:pointer}
+.cart-btn{background:#28a745;color:#fff;border:none;padding:10px;width:100%;margin-top:5px;cursor:pointer}
+.login-btn{background:#fff;color:#000;padding:8px 15px;border:none;border-radius:5px;cursor:pointer}
+#cartCount{background:red;color:white;padding:4px 8px;border-radius:50%}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <div class="logo">
-    <img src="image.png">
-    <b>LOYAL FASHION</b>
-  </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+        <img src="image.png" width="40" style="border-radius:50%">
+        <b>LOYAL FASHION</b>
+    </div>
 
-  <div>
-    🛒 <span id="cartCount">0</span>
-    <button class="login-btn" onclick="openLogin()">Login</button>
-    <button onclick="openCart()">Cart</button>
-  </div>
+    <div>
+        🛒 <span id="cartCount">0</span>
+        <button onclick="window.location.href='cart.html'">Cart</button>
+        <button class="login-btn" onclick="openLogin()">Login</button>
+    </div>
 </div>
 
 <div class="product-grid" id="product-list"></div>
 
 <!-- LOGIN BOX -->
-<div id="loginBox">
-<h3>Buyer Login</h3>
-<input type="email" id="email" placeholder="Email"><br><br>
-<input type="password" id="password" placeholder="Password"><br><br>
-<button onclick="login()">Login</button>
-<button onclick="signup()">Signup</button>
-<button onclick="closeLogin()">Close</button>
+<div id="loginBox" style="display:none;position:fixed;top:30%;left:40%;background:white;padding:20px;border-radius:10px">
+    <h3>Buyer Login</h3>
+    <input type="email" id="email" placeholder="Email"><br><br>
+    <input type="password" id="password" placeholder="Password"><br><br>
+    <button onclick="login()">Login</button>
+    <button onclick="signup()">Signup</button>
+    <button onclick="closeLogin()">Close</button>
 </div>
 
-<!-- CART BOX -->
-<div id="cartBox">
-<h3>Your Cart</h3>
-<div id="cartItems"></div>
-<br>
-<button onclick="checkout()">Checkout</button>
-<button onclick="closeCart()">Close</button>
-</div>
-
-<!-- FIREBASE -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -76,31 +63,40 @@ appId:"1:394408704286:web:9ad690a946b225ab20f10f"
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 const auth=firebase.auth();
+
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 document.getElementById("cartCount").innerText = cart.length;
 
-/* LOGIN */
-function openLogin(){loginBox.style.display="block"}
-function closeLogin(){loginBox.style.display="none"}
+/* LOGIN UI */
+function openLogin(){document.getElementById("loginBox").style.display="block"}
+function closeLogin(){document.getElementById("loginBox").style.display="none"}
 
 function login(){
 const email=document.getElementById("email").value;
 const password=document.getElementById("password").value;
+
 auth.signInWithEmailAndPassword(email,password)
-.then(()=>{alert("Login Success");closeLogin();})
-.catch(e=>alert(e.message));
+.then(()=>{
+alert("Login Success");
+closeLogin();
+})
+.catch(err=>alert(err.message));
 }
 
 function signup(){
 const email=document.getElementById("email").value;
 const password=document.getElementById("password").value;
+
 auth.createUserWithEmailAndPassword(email,password)
-.then(()=>{alert("Account Created");closeLogin();})
-.catch(e=>alert(e.message));
+.then(()=>{
+alert("Account Created");
+closeLogin();
+})
+.catch(err=>alert(err.message));
 }
 
 /* LOAD PRODUCTS */
-db.collection("products").orderBy("createdAt","desc")
+db.collection("products")
 .onSnapshot(snapshot=>{
 const list=document.getElementById("product-list");
 list.innerHTML="";
@@ -120,40 +116,9 @@ list.innerHTML+=`
 /* CART */
 function addToCart(id,name,price){
 cart.push({id,name,price});
-cartCount.innerText=cart.length;
+localStorage.setItem("cart",JSON.stringify(cart));
+document.getElementById("cartCount").innerText=cart.length;
 alert("Added to Cart");
-}
-
-function openCart(){
-cartBox.style.display="block";
-let html="";
-cart.forEach(item=>{
-html+=`<p>${item.name} - ₹${item.price}</p>`;
-});
-cartItems.innerHTML=html||"Cart Empty";
-}
-
-function closeCart(){cartBox.style.display="none"}
-
-/* CHECKOUT */
-function checkout(){
-if(!auth.currentUser){
-alert("Please Login First");
-return;
-}
-cart.forEach(item=>{
-db.collection("orders").add({
-user:auth.currentUser.email,
-productId:item.id,
-productName:item.name,
-price:item.price,
-createdAt:firebase.firestore.FieldValue.serverTimestamp()
-});
-});
-alert("Order Placed Successfully");
-cart=[];
-cartCount.innerText=0;
-closeCart();
 }
 
 /* BUY NOW */
@@ -162,6 +127,7 @@ if(!auth.currentUser){
 alert("Please Login First");
 return;
 }
+
 db.collection("orders").add({
 user:auth.currentUser.email,
 productId:id,
@@ -169,6 +135,7 @@ productName:name,
 price:price,
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 });
+
 alert("Order Placed Successfully");
 }
 </script>
