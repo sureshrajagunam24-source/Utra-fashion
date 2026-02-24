@@ -46,76 +46,34 @@ body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hi
 .buy-now-btn { background: var(--dark); color: #fff; border: none; padding: 12px; font-weight: bold; cursor: pointer; }
 
 /* SIDEBAR & MODAL */
-#profileSidebar { position: fixed; top: 0; right: -350px; width: 300px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); z-index: 4000; transition: 0.4s; padding: 25px; }
+#profileSidebar { position: fixed; top: 0; right: -100%; width: 300px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); z-index: 4000; transition: 0.4s; padding: 25px; }
 .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3500; }
 .modal { display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:25px; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index: 3000; width: 300px;}
 #cartCount { background: var(--primary); color: white; padding: 2px 6px; border-radius: 50%; font-size: 10px; position: absolute; top: -8px; right: 5px; }
 
 /* =========================================
-   MASS UPDATE: MOBILE RESPONSIVE DESIGN 📱
+   FIXED: MOBILE RESPONSIVE DESIGN 📱
    ========================================= */
 @media (max-width: 768px) {
-    /* Header elements onnu keela onnu adukkum */
-    .header {
-        flex-direction: column;
-        padding: 15px;
-        gap: 15px;
-    }
-
-    .logo-section { margin-bottom: 5px; }
-
-    /* Search bar full width aagidum */
-    .search-container {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* Menu links wrap aagi center-la varum */
-    .nav-links {
-        gap: 15px;
-        flex-wrap: wrap;
-        justify-content: center;
-        font-size: 13px;
-    }
-
-    /* Icons (Cart, Profile) evenly spread aagum */
-    .action-icons {
-        width: 100%;
-        justify-content: space-between;
-        margin-top: 10px;
-        padding: 0 10px;
-        box-sizing: border-box;
-    }
-
-    /* Product Grid Mobile View (2 columns on most phones) */
-    .product-grid {
-        padding: 20px 15px;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 15px;
-    }
-
-    /* Product Image height kuraiyum */
-    .product-card img {
-        height: 220px;
-    }
-
-    /* Out of Stock badge chinndhagum */
-    .out-of-stock-badge {
-        font-size: 11px;
-        padding: 5px;
-        width: 90%;
-    }
-
-    /* Sidebar mobile-la full screen varum */
-    #profileSidebar {
-        width: 100%;
-        right: -100%;
-    }
+    html, body { overflow-x: hidden; width: 100vw; margin: 0; padding: 0; }
+    .header { flex-direction: column; padding: 15px 10px; gap: 15px; }
     
-    /* Login modal responsive width */
-    .modal {
-        width: 85%;
-    }
+    .search-container { width: 100%; box-sizing: border-box; }
+    
+    .nav-links { width: 100%; justify-content: space-evenly; gap: 5px; font-size: 13px; }
+    
+    /* Cart Icon thelivaa theriya */
+    .action-icons { width: 100%; justify-content: space-evenly; gap: 5px; padding: 0; }
+    .icon-btn { font-size: 11px; }
+    .avatar-circle { width: 28px; height: 28px; font-size: 14px; margin: 0 auto 3px; }
+    
+    /* Grid 2-columns pakka-vaa ukkara */
+    .product-grid { padding: 15px 10px; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .product-card img { height: 180px; }
+    .out-of-stock-badge { font-size: 10px; padding: 5px; width: 95%; }
+    
+    #profileSidebar { width: 85%; }
+    .modal { width: 85%; box-sizing: border-box; }
 }
 </style>
 </head>
@@ -288,7 +246,13 @@ function openProfile() {
         }
     });
 }
-function closeProfile() { document.getElementById("profileSidebar").style.right = "-350px"; document.getElementById("overlay").style.display = "none"; }
+
+/* FIXED JS: Sidebar close logic */
+function closeProfile() { 
+    document.getElementById("profileSidebar").style.right = "-100%"; 
+    document.getElementById("overlay").style.display = "none"; 
+}
+
 function saveProfile() {
     const user = auth.currentUser;
     const name = document.getElementById("sideName").value;
