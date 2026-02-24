@@ -50,6 +50,73 @@ body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hi
 .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3500; }
 .modal { display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; padding:25px; border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index: 3000; width: 300px;}
 #cartCount { background: var(--primary); color: white; padding: 2px 6px; border-radius: 50%; font-size: 10px; position: absolute; top: -8px; right: 5px; }
+
+/* =========================================
+   MASS UPDATE: MOBILE RESPONSIVE DESIGN 📱
+   ========================================= */
+@media (max-width: 768px) {
+    /* Header elements onnu keela onnu adukkum */
+    .header {
+        flex-direction: column;
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .logo-section { margin-bottom: 5px; }
+
+    /* Search bar full width aagidum */
+    .search-container {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Menu links wrap aagi center-la varum */
+    .nav-links {
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 13px;
+    }
+
+    /* Icons (Cart, Profile) evenly spread aagum */
+    .action-icons {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 10px;
+        padding: 0 10px;
+        box-sizing: border-box;
+    }
+
+    /* Product Grid Mobile View (2 columns on most phones) */
+    .product-grid {
+        padding: 20px 15px;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px;
+    }
+
+    /* Product Image height kuraiyum */
+    .product-card img {
+        height: 220px;
+    }
+
+    /* Out of Stock badge chinndhagum */
+    .out-of-stock-badge {
+        font-size: 11px;
+        padding: 5px;
+        width: 90%;
+    }
+
+    /* Sidebar mobile-la full screen varum */
+    #profileSidebar {
+        width: 100%;
+        right: -100%;
+    }
+    
+    /* Login modal responsive width */
+    .modal {
+        width: 85%;
+    }
+}
 </style>
 </head>
 
