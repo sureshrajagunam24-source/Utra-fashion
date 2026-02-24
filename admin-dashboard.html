@@ -115,7 +115,7 @@ label { font-size: 12px; font-weight: bold; color: #555; margin-top: 5px; displa
             <h2>Inventory Control</h2>
             <table>
                 <thead>
-                    <tr><th>Image</th><th>Name</th><th>Price</th><th>Action</th></tr>
+                    <tr><th>Image</th><th>Name & Status</th><th>Price</th><th>Action</th></tr>
                 </thead>
                 <tbody id="product-table"></tbody>
             </table>
@@ -214,6 +214,7 @@ window.saveProduct = async function(){
             productName: name, price: Number(price), description: desc, category: category, sizes: selectedSizes,
             imageUrl: imgData[0], imageUrl2: imgData[1], imageUrl3: imgData[2], 
             imageUrl4: imgData[3], imageUrl5: imgData[4], imageUrl6: imgData[5],
+            inStock: true, // Default aaga pudhu product stock-la irukkum
             createdAt: serverTimestamp()
         };
 
@@ -228,18 +229,44 @@ window.saveProduct = async function(){
     } catch (err) { status.innerText="Error Saving Product! ❌"; }
 }
 
+/* MASS UPDATE: Toggle Stock Function */
+window.toggleStock = async function(id, currentStockStatus) {
+    try {
+        await updateDoc(doc(db, "products", id), { inStock: !currentStockStatus });
+    } catch (err) {
+        alert("Error updating stock: " + err.message);
+    }
+}
+
+/* MASS UPDATE: Inventory Control with Stock Button */
 function loadProducts(){
     onSnapshot(collection(db, "products"), (snapshot) => {
         const table = document.getElementById("product-table");
         table.innerHTML = "";
         document.getElementById("total").innerText = snapshot.size;
+        
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
+            
+            // Stock checking
+            const isInStock = data.inStock !== false; 
+            const stockStatusTxt = isInStock ? "In Stock ✅" : "Out of Stock ❌";
+            const stockColor = isInStock ? "#28a745" : "#dc3545";
+            const toggleBtnTxt = isInStock ? "Mark Out of Stock" : "Mark In Stock";
+            const toggleBtnColor = isInStock ? "#6c757d" : "#28a745";
+
             table.innerHTML += `<tr>
                 <td><img src="${data.imageUrl}" class="order-img"></td>
-                <td>${data.productName}</td>
+                <td>
+                    <b>${data.productName}</b><br>
+                    <span style="color:${stockColor}; font-weight:bold; font-size:12px;">${stockStatusTxt}</span>
+                </td>
                 <td>₹${data.price}</td>
                 <td>
+                    <button style="background:${toggleBtnColor}; color:#fff; margin-bottom:5px; width:100%; border-radius:4px; padding:8px; border:none; cursor:pointer; font-weight:bold;" 
+                            onclick="toggleStock('${docSnap.id}', ${isInStock})">
+                        ${toggleBtnTxt}
+                    </button><br>
                     <button class="edit-btn" onclick="editProduct('${docSnap.id}','${data.productName}','${data.price}','${data.description || ""}')">Edit</button>
                     <button class="delete-btn" onclick="deleteProduct('${docSnap.id}')">Delete</button>
                 </td>
@@ -252,7 +279,6 @@ window.updateOrderStatus = async function(orderId, newStatus) {
     try { await updateDoc(doc(db, "orders", orderId), { status: newStatus }); } catch (err) { }
 }
 
-/* MASS UPDATE: ORDER TABLE WITH SIZE HIGHLIGHT */
 function loadOrders(){
     const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
