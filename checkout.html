@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Loyal Fashion</title>
+    <style>
+        :root { --primary: #ff3f6c; --dark: #282c3f; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        .checkout-container { max-width: 600px; margin: 20px auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        
+        /* Product Preview Style */
+        .order-summary { display: flex; gap: 20px; align-items: center; background: #fafafa; padding: 15px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #eee; }
+        .order-summary img { width: 100px; height: 120px; object-fit: cover; border-radius: 8px; }
+        .item-details h3 { margin: 0 0 5px; font-size: 18px; color: var(--dark); }
+        .item-details p { margin: 5px 0; color: #666; font-size: 15px; }
+        .price-tag { color: #000; font-weight: bold; font-size: 18px; }
+
+        /* Form Style */
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 13px; color: #555; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        textarea { height: 80px; resize: none; }
+        
+        .place-order-btn { width: 100%; background: var(--dark); color: #fff; padding: 15px; border: none; border-radius: 8px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .place-order-btn:hover { background: #000; transform: translateY(-2px); }
+        .back-link { display: inline-block; margin-bottom: 20px; text-decoration: none; color: var(--primary); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="checkout-container">
+    <a href="index.html" class="back-link">← Continue Shopping</a>
+    <h2>📦 Checkout</h2>
+
+    <div id="order-preview" class="order-summary">
+        <p>Loading product details...</p>
+    </div>
+
+    <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="bName" placeholder="Enter your full name">
+    </div>
+    <div class="form-group">
+        <label>Mobile Number</label>
+        <input type="number" id="bMobile" placeholder="Enter 10 digit mobile number">
+    </div>
+    <div class="form-group">
+        <label>Delivery Address</label>
+        <textarea id="bAddress" placeholder="Enter your full home address with pincode"></textarea>
+    </div>
+
+    <button class="place-order-btn" onclick="confirmOrder()">PLACE ORDER (CASH ON DELIVERY)</button>
+    <p id="msg" style="text-align: center; font-weight: bold; color: green; margin-top: 10px;"></p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = { 
+        apiKey:"AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4", 
+        authDomain:"e-commerce-wepsite.firebaseapp.com", 
+        projectId:"e-commerce-wepsite", 
+        storageBucket:"e-commerce-wepsite.appspot.com", 
+        messagingSenderId:"394408704286", 
+        appId:"1:394408704286:web:9ad690a946b225ab20f10f" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // 1. Details page-la irundhu vandha data-ah fetch pannuvom
+    const buyData = JSON.parse(localStorage.getItem("directBuy"));
+
+    if(buyData) {
+        document.getElementById("order-preview").innerHTML = `
+            <img src="${buyData.imageUrl}">
+            <div class="item-details">
+                <h3>${buyData.productName}</h3>
+                <p>Selected Size: <b style="color:var(--primary)">${buyData.size}</b></p>
+                <div class="price-tag">₹${buyData.price}</div>
+            </div>
+        `;
+    } else {
+        window.location.href = "index.html";
+    }
+
+    // 2. Order Place Logic
+    window.confirmOrder = async function() {
+        const name = document.getElementById("bName").value.trim();
+        const mobile = document.getElementById("bMobile").value.trim();
+        const address = document.getElementById("bAddress").value.trim();
+        const user = auth.currentUser;
+
+        if(!name || !mobile || !address) {
+            alert("Please fill all delivery details! 📝");
+            return;
+        }
+
+        if(!user) {
+            alert("Please login to place order! 👤");
+            return;
+        }
+
+        document.getElementById("msg").innerText = "Placing Order... ⏳";
+
+        try {
+            // Firestore-la order-ah save pannuvom
+            await db.collection("orders").add({
+                productName: buyData.productName,
+                price: buyData.price,
+                imageUrl: buyData.imageUrl,
+                size: buyData.size, // Size sethukittoam
+                buyerName: name,
+                buyerMobile: mobile,
+                buyerAddress: address,
+                user: user.email,
+                status: "Pending", // Initial status
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            document.getElementById("msg").innerText = "Order Placed Successfully! 🎉";
+            localStorage.removeItem("directBuy"); // Data-ah clear pannuvom
+            
+            setTimeout(() => {
+                window.location.href = "my-orders.html";
+            }, 2000);
+
+        } catch (err) {
+            alert("Order Error: " + err.message);
+            document.getElementById("msg").innerText = "";
+        }
+    }
+</script>
+</body>
+</html>
