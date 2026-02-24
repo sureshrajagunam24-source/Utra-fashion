@@ -33,7 +33,6 @@ th,td{padding:15px;border-bottom:1px solid #eee;text-align:left;}
 .status-select { padding: 8px; border-radius: 4px; font-weight: bold; border: 1px solid #ddd; cursor: pointer; }
 label { font-size: 12px; font-weight: bold; color: #555; margin-top: 5px; display: block; }
 
-/* SIZE CHECKBOX STYLE */
 .size-selector { display: flex; gap: 15px; margin: 10px 0; background: #f9f9f9; padding: 10px; border-radius: 8px; }
 .size-selector label { display: inline; margin-right: 5px; cursor: pointer; }
 </style>
@@ -183,10 +182,8 @@ window.logout = function(){
 window.saveProduct = async function(){
     const name = document.getElementById("pName").value.trim();
     const price = document.getElementById("pPrice").value.trim();
-    const category = document.getElementById("pCategory").value; // Category
+    const category = document.getElementById("pCategory").value; 
     const status = document.getElementById("status-msg");
-
-    // Fetching Selected Sizes
     const selectedSizes = Array.from(document.querySelectorAll('.size-check:checked')).map(cb => cb.value);
 
     const files = [];
@@ -209,33 +206,22 @@ window.saveProduct = async function(){
 
     try {
         const imgData = await Promise.all(files.map(f => f ? toBase64(f) : ""));
-
         const productObj = {
-            productName: name,
-            price: Number(price),
-            category: category, // Added to Firestore
-            sizes: selectedSizes, // Added to Firestore
-            imageUrl: imgData[0],
-            imageUrl2: imgData[1],
-            imageUrl3: imgData[2],
-            imageUrl4: imgData[3],
-            imageUrl5: imgData[4],
-            imageUrl6: imgData[5],
+            productName: name, price: Number(price), category: category, sizes: selectedSizes,
+            imageUrl: imgData[0], imageUrl2: imgData[1], imageUrl3: imgData[2], 
+            imageUrl4: imgData[3], imageUrl5: imgData[4], imageUrl6: imgData[5],
             createdAt: serverTimestamp()
         };
 
         if(editId){
             await updateDoc(doc(db, "products", editId), productObj);
-            editId = null;
-            status.innerText="Updated Successfully! ✅";
+            editId = null; status.innerText="Updated Successfully! ✅";
         } else {
             await addDoc(collection(db, "products"), productObj);
             status.innerText="Added Successfully! ✅";
         }
         clearForm();
-    } catch (err) {
-        status.innerText="Error: Might be file size too large! ❌";
-    }
+    } catch (err) { status.innerText="Error Saving Product! ❌"; }
 }
 
 function loadProducts(){
@@ -262,6 +248,7 @@ window.updateOrderStatus = async function(orderId, newStatus) {
     try { await updateDoc(doc(db, "orders", orderId), { status: newStatus }); } catch (err) { }
 }
 
+/* REAL-TIME ORDER LOAD LOGIC */
 function loadOrders(){
     const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
@@ -270,9 +257,15 @@ function loadOrders(){
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
             const orderId = docSnap.id;
-            const statusColor = data.status === 'Delivered' ? '#28a745' : (data.status === 'Shipped' ? '#007bff' : '#ef6c00');
             
-            table.innerHTML += `<tr>
+            // AUTOMATIC STATUS COLOR
+            let statusColor = "#ef6c00"; 
+            if(data.status === 'Shipped') statusColor = "#007bff";
+            if(data.status === 'Delivered') statusColor = "#28a745";
+            if(data.status === 'Cancelled') statusColor = "#dc3545"; // Red for cancelled
+            
+            table.innerHTML += `
+            <tr>
                 <td><img src="${data.imageUrl || 'image.png'}" class="order-img"></td>
                 <td><b>${data.productName}</b></td>
                 <td>₹${data.price}</td>
@@ -283,10 +276,12 @@ function loadOrders(){
                     📧 <small>${data.user}</small>
                 </td>
                 <td>
-                    <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)" style="color:${statusColor}; border-color:${statusColor};">
+                    <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)" 
+                            style="color:${statusColor}; border-color:${statusColor};">
                         <option value="Pending" ${data.status === 'Pending' ? 'selected' : ''}>Pending</option>
                         <option value="Shipped" ${data.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
                         <option value="Delivered" ${data.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                        <option value="Cancelled" ${data.status === 'Cancelled' ? 'selected' : ''}>Cancelled 🚫</option>
                     </select>
                 </td>
             </tr>`;
@@ -295,15 +290,11 @@ function loadOrders(){
 }
 
 window.editProduct = function(id, name, price){ 
-    showTab('addProduct'); 
-    document.getElementById("pName").value = name; 
-    document.getElementById("pPrice").value = price; 
-    editId = id; 
+    showTab('addProduct'); document.getElementById("pName").value = name; document.getElementById("pPrice").value = price; editId = id; 
 }
 window.deleteProduct = async function(id){ if(confirm("Delete product?")) await deleteDoc(doc(db, "products", id)); }
 window.clearForm = function(){ 
-    document.getElementById("pName").value=""; 
-    document.getElementById("pPrice").value=""; 
+    document.getElementById("pName").value=""; document.getElementById("pPrice").value=""; 
     document.querySelectorAll('.size-check').forEach(cb => cb.checked = false);
     for(let i=1; i<=6; i++){ document.getElementById("pImage" + i).value = ""; }
 }
