@@ -10,6 +10,10 @@ body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hi
 
 /* HEADER */
 .header{background:#fff; padding:10px 50px; display:flex; align-items:center; justify-content:space-between; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
+
+/* Desktop-la top-bar-mobile row thevai illa, so adhai flex-ah maintain panrom */
+.top-bar-mobile { display: contents; } 
+
 .logo-section { display:flex; align-items:center; gap:12px; cursor: pointer; }
 .logo-section b { font-size: 20px; color: #000; text-transform: uppercase; }
 
@@ -27,14 +31,13 @@ body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hi
 .icon-btn { text-align: center; cursor: pointer; position: relative; font-size: 12px; font-weight: bold; }
 .avatar-circle { width:32px; height:32px; background:var(--dark); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:16px; margin: 0 auto; }
 
-/* PRODUCT GRID & STOCK STYLES */
+/* PRODUCT GRID */
 .product-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:30px; padding:40px 50px;}
 .product-card{background:#fff; text-align:left; transition: 0.3s; cursor: pointer; border: 1px solid transparent; position: relative;}
 .product-card:hover { border: 1px solid #eee; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
 .product-card img{width:100%; height:320px; object-fit:cover; border-radius:4px;}
 
-/* OUT OF STOCK CSS */
-.out-of-stock-badge { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); background: rgba(220, 53, 69, 0.9); color: white; padding: 10px 20px; font-weight: bold; font-size: 18px; border-radius: 4px; z-index: 10; letter-spacing: 1px; width: 80%; text-align: center; pointer-events: none;}
+.out-of-stock-badge { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); background: rgba(220, 53, 69, 0.9); color: white; padding: 10px 20px; font-weight: bold; font-size: 18px; border-radius: 4px; z-index: 10; width: 80%; text-align: center; pointer-events: none;}
 .dim-image { opacity: 0.5; filter: grayscale(100%); }
 .disabled-btn { background: #ccc !important; color: #666 !important; cursor: not-allowed !important; border: none !important; }
 
@@ -52,58 +55,59 @@ body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hi
 #cartCount { background: var(--primary); color: white; padding: 2px 6px; border-radius: 50%; font-size: 10px; position: absolute; top: -8px; right: 5px; }
 
 /* =========================================
-   MASS UPDATE: MOBILE UI RE-ORDER 📱
+   ULTIMATE MOBILE UI: LOGO LEFT, ICONS RIGHT 📱
    ========================================= */
 @media (max-width: 768px) {
     html, body { overflow-x: hidden; width: 100vw; margin: 0; padding: 0; }
-    
-    .header {
-        display: flex;
-        flex-direction: column; 
-        padding: 10px;
-        gap: 12px;
+    .header { flex-direction: column; padding: 10px; gap: 10px; }
+
+    /* Logo and Icons in one row */
+    .top-bar-mobile {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        order: 1;
     }
 
-    /* 1. Logo First */
-    .logo-section { order: 1; margin-bottom: 5px; }
+    .logo-section { margin: 0; gap: 8px; }
+    .logo-section b { font-size: 15px; }
 
-    /* 2. Search Bar Second (Mela varum) */
+    .action-icons {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        order: initial;
+    }
+
+    /* Name maraikka and icons align panna */
+    #userName { display: none; }
+    .icon-btn { font-size: 10px; text-align: center; min-width: 40px; }
+    .avatar-circle { margin: 0 auto 2px; width: 28px; height: 28px; font-size: 14px; }
+
+    /* Search bar keela full width */
     .search-container { 
         order: 2; 
         width: 100%; 
-        box-sizing: border-box; 
-    }
-
-    /* 3. Category Links Third (Search-ku keezha varum) */
-    .nav-links { 
-        order: 3; 
-        width: 100%; 
-        display: flex;
-        justify-content: space-between; 
-        gap: 5px; 
-        font-size: 13px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 5px;
-    }
-
-    /* 4. Action Icons Fourth (Kadaisiya right side-la) */
-    .action-icons { 
-        order: 4;
-        width: 100%; 
-        display: flex;
-        justify-content: flex-end; 
-        gap: 15px; 
-        padding-right: 10px;
+        margin: 5px 0;
         box-sizing: border-box;
     }
 
-    .icon-btn { font-size: 11px; min-width: 45px; }
-    .avatar-circle { width: 28px; height: 28px; font-size: 14px; margin: 0 auto 3px; }
+    /* Categories kadasila */
+    .nav-links { 
+        order: 3; 
+        width: 100%; 
+        justify-content: space-between; 
+        gap: 5px;
+        font-size: 12px;
+        padding-top: 5px;
+        border-top: 1px solid #eee;
+    }
 
     .product-grid { 
         padding: 15px 10px; 
         grid-template-columns: repeat(2, 1fr); 
-        gap: 12px; 
+        gap: 10px; 
     }
     .product-card img { height: 180px; }
     #profileSidebar { width: 85%; }
@@ -114,16 +118,21 @@ body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hi
 <body>
 
 <div class="header">
-    <div class="logo-section" onclick="location.reload()">
-        <img src="image.png" alt="Logo" width="40" style="border-radius:50%">
-        <b>LOYAL FASHION</b>
-    </div>
-    
-    <div class="nav-links">
-        <span onclick="filterCategory('ALL')">ALL</span>
-        <span onclick="filterCategory('MEN')">MEN</span>
-        <span onclick="filterCategory('WOMEN')">WOMEN</span>
-        <span onclick="filterCategory('KIDS')">KIDS</span>
+    <div class="top-bar-mobile">
+        <div class="logo-section" onclick="location.reload()">
+            <img src="image.png" alt="Logo" width="35" style="border-radius:50%">
+            <b>LOYAL FASHION</b>
+        </div>
+
+        <div class="action-icons">
+            <div class="icon-btn" id="loginBtn" onclick="openLogin()">👤<br>Login</div>
+            <div class="icon-btn" id="userInfo" style="display:none;" onclick="openProfile()">
+                <div class="avatar-circle" id="userLetter"></div>
+                <span id="userName">Profile</span>
+            </div>
+            <div class="icon-btn" onclick="window.location.href='wishlist.html'">❤️<br>Wishlist</div>
+            <div class="icon-btn" onclick="window.location.href='cart.html'">🛒<span id="cartCount">0</span><br>Cart</div>
+        </div>
     </div>
 
     <div class="search-container">
@@ -131,14 +140,11 @@ body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hi
         <img src="https://cdn-icons-png.flaticon.com/512/149/149852.png" class="search-lens">
     </div>
 
-    <div class="action-icons">
-        <div class="icon-btn" id="loginBtn" onclick="openLogin()">👤<br>Login</div>
-        <div class="icon-btn" id="userInfo" style="display:none;" onclick="openProfile()">
-            <div class="avatar-circle" id="userLetter"></div>
-            <span id="userName">Profile</span>
-        </div>
-        <div class="icon-btn" onclick="window.location.href='wishlist.html'">❤️<br>Wishlist</div>
-        <div class="icon-btn" onclick="window.location.href='cart.html'">🛒<span id="cartCount">0</span><br>Cart</div>
+    <div class="nav-links">
+        <span onclick="filterCategory('ALL')">ALL</span>
+        <span onclick="filterCategory('MEN')">MEN</span>
+        <span onclick="filterCategory('WOMEN')">WOMEN</span>
+        <span onclick="filterCategory('KIDS')">KIDS</span>
     </div>
 </div>
 
@@ -229,23 +235,28 @@ function renderProducts(products) {
 
 window.filterCategory = function(cat) {
     if(cat === 'ALL') { renderProducts(allProducts); } 
-    else { const filtered = allProducts.filter(p => p.category === cat); renderProducts(filtered); }
+    else { renderProducts(allProducts.filter(p => p.category === cat)); }
 }
 
 window.searchProducts = function() {
     const term = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = allProducts.filter(p => p.productName.toLowerCase().includes(term));
-    renderProducts(filtered);
+    renderProducts(allProducts.filter(p => p.productName.toLowerCase().includes(term)));
 }
 
 auth.onAuthStateChanged(user=>{
     const loginBtn=document.getElementById("loginBtn");
     const userInfo=document.getElementById("userInfo");
+    const count = JSON.parse(localStorage.getItem("cart"))?.length || 0;
+    document.getElementById("cartCount").innerText = count;
+
     if(user && user.email !== "sureshrajagunam24@gmail.com"){
-        loginBtn.style.display="none"; userInfo.style.display="block";
+        loginBtn.style.display="none";
+        userInfo.style.display="block";
         document.getElementById("userLetter").innerText = user.email.charAt(0).toUpperCase();
-        document.getElementById("userName").innerText = user.email.split('@')[0].toUpperCase();
-    } else { loginBtn.style.display="block"; userInfo.style.display="none"; }
+    } else {
+        loginBtn.style.display="block";
+        userInfo.style.display="none";
+    }
 });
 
 function openProfile() {
@@ -261,7 +272,10 @@ function openProfile() {
         }
     });
 }
-function closeProfile() { document.getElementById("profileSidebar").style.right = "-100%"; document.getElementById("overlay").style.display = "none"; }
+function closeProfile() { 
+    document.getElementById("profileSidebar").style.right = "-100%"; 
+    document.getElementById("overlay").style.display = "none"; 
+}
 function saveProfile() {
     const user = auth.currentUser;
     const name = document.getElementById("sideName").value;
@@ -288,8 +302,11 @@ function handleAuth() {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
     if (!email || !password) { alert("Please fill all fields!"); return; }
-    if (isLoginMode) { auth.signInWithEmailAndPassword(email, password).then(() => location.reload()).catch(err => alert(err.message)); } 
-    else { auth.createUserWithEmailAndPassword(email, password).then(() => { alert("Account Created! ✅"); location.reload(); }).catch(err => alert(err.message)); }
+    if (isLoginMode) {
+        auth.signInWithEmailAndPassword(email, password).then(() => location.reload()).catch(err => alert(err.message));
+    } else {
+        auth.createUserWithEmailAndPassword(email, password).then(() => { alert("Account Created! ✅"); location.reload(); }).catch(err => alert(err.message));
+    }
 }
 
 window.addToCart = function(id,name,price,image){
