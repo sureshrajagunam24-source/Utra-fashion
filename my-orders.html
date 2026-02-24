@@ -4,182 +4,214 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - Loyal Fashion</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --amazon-green: #2e7d32; --primary: #ff3f6c; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        :root { --primary: #ff3f6c; --dark: #282c3f; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        .orders-container { max-width: 800px; margin: 20px auto; }
+        .back-link { display: inline-block; margin-bottom: 20px; text-decoration: none; color: var(--primary); font-weight: bold; }
         
-        .order-card { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .product-section { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
-        .product-section img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; }
-        .product-info h3 { margin: 0; font-size: 18px; color: #282c3f; }
-        .product-info p { margin: 5px 0; color: #666; font-size: 14px; }
-
-        /* TRACKING BAR STYLES */
-        .track-container { display: flex; justify-content: space-between; margin: 30px 0; position: relative; padding: 0 10px; }
-        .track-line { position: absolute; top: 10px; left: 0; height: 4px; background: #eee; width: 100%; z-index: 1; border-radius: 10px; }
-        .track-progress { position: absolute; top: 10px; left: 0; height: 4px; background: var(--amazon-green); z-index: 2; transition: 0.8s ease; border-radius: 10px; }
+        .order-card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .order-header span { color: #666; font-size: 14px; }
+        .status-badge { background: #e8f5e9; color: #2e7d32; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 14px; }
+        .status-cancelled { background: #ffebee; color: #c62828; }
         
-        .step { z-index: 3; text-align: center; width: 80px; background: #fff; }
-        .dot { width: 22px; height: 22px; background: #ddd; border-radius: 50%; margin: 0 auto 8px; border: 3px solid #fff; transition: 0.3s; }
-        .step.active .dot { background: var(--amazon-green); box-shadow: 0 0 10px rgba(46, 125, 50, 0.4); }
-        .step-text { font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase; }
-        .step.active .step-text { color: var(--amazon-green); }
+        .product-info { display: flex; gap: 20px; align-items: center; }
+        .product-info img { width: 80px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .details h3 { margin: 0 0 5px; color: var(--dark); }
+        .details p { margin: 2px 0; color: #666; font-size: 14px; }
+        .price { font-size: 18px; font-weight: bold; color: #000; margin-top: 5px; }
 
-        /* BUTTONS */
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .invoice-btn { background: #fff; color: var(--primary); border: 1px solid var(--primary); padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.3s; }
-        .invoice-btn:hover { background: var(--primary); color: #fff; }
-        .rate-btn { background: var(--primary); color: #fff; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; }
-        .cancel-btn { background: #fff; color: #dc3545; border: 1px solid #dc3545; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; }
-        .cancel-btn:hover { background: #dc3545; color: #fff; }
-        .back-btn { background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        /* TRACKING STEPPER UI */
+        .track-stepper { display: flex; justify-content: space-between; position: relative; margin: 25px 0 10px; }
+        .track-stepper::before { content: ''; position: absolute; top: 15px; left: 10%; width: 80%; height: 3px; background: #eee; z-index: 1; }
+        .step { position: relative; z-index: 2; text-align: center; width: 33%; }
+        .step .circle { width: 30px; height: 30px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: bold; color: #999; border: 3px solid #fff; }
+        .step .label { font-size: 12px; font-weight: bold; color: #999; }
+        
+        .step.active .circle { background: var(--primary); color: #fff; }
+        .step.active .label { color: var(--primary); }
+        .step.completed .circle { background: #28a745; color: #fff; }
+        .step.completed .label { color: #28a745; }
+
+        .btn-group { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+        .bill-btn { background: var(--dark); color: #fff; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .bill-btn:hover { background: #000; }
+        .cancel-btn { background: #fff; color: #c62828; border: 1px solid #c62828; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h2 style="margin:0;">📦 My Orders & Tracking</h2>
-    <button class="back-btn" onclick="window.location.href='index.html'">← Back to Store</button>
+<div class="orders-container">
+    <a href="index.html" class="back-link">← Back to Shopping</a>
+    <h2>📦 My Orders</h2>
+    <div id="orders-list">
+        <p style="text-align:center; color:#666;">Loading your orders... ⏳</p>
+    </div>
 </div>
-
-<div id="ordersList"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig = {
-    apiKey: "AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4",
-    authDomain: "e-commerce-wepsite.firebaseapp.com",
-    projectId: "e-commerce-wepsite",
-    storageBucket: "e-commerce-wepsite.appspot.com",
-    messagingSenderId: "394408704286",
-    appId: "1:394408704286:web:9ad690a946b225ab20f10f"
-};
+    const firebaseConfig = { 
+        apiKey:"AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4", 
+        authDomain:"e-commerce-wepsite.firebaseapp.com", 
+        projectId:"e-commerce-wepsite", 
+        storageBucket:"e-commerce-wepsite.appspot.com", 
+        messagingSenderId:"394408704286", 
+        appId:"1:394408704286:web:9ad690a946b225ab20f10f" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+    let userOrders = [];
 
-auth.onAuthStateChanged(user => {
-    if (!user) { window.location.href = 'index.html'; return; }
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            loadMyOrders(user.email);
+        } else {
+            window.location.href = "index.html"; // Login aagala na home page poidum
+        }
+    });
 
-    db.collection("orders")
-      .where("user", "==", user.email)
-      .orderBy("createdAt", "desc")
-      .onSnapshot(snapshot => {
-          const list = document.getElementById("ordersList");
-          list.innerHTML = "";
+    function loadMyOrders(email) {
+        db.collection("orders").where("user", "==", email).orderBy("createdAt", "desc").onSnapshot(snapshot => {
+            const list = document.getElementById("orders-list");
+            list.innerHTML = "";
+            userOrders = [];
 
-          snapshot.forEach(docSnap => {
-              const data = docSnap.data();
-              const orderId = docSnap.id;
-              const orderStatus = data.status || "Pending";
-              
-              // Progress Bar Logic
-              let progressWidth = "0%";
-              if(orderStatus === "Shipped") progressWidth = "50%";
-              if(orderStatus === "Delivered") progressWidth = "100%";
+            if(snapshot.empty) {
+                list.innerHTML = `<p style="text-align:center; color:#666;">You haven't placed any orders yet! 🛒</p>`;
+                return;
+            }
 
-              // Logic for Action Buttons (Cancel vs Download Bill)
-              let actionButtonsHTML = "";
-              if(orderStatus === "Pending") {
-                  actionButtonsHTML = `<button class="cancel-btn" onclick="cancelOrder('${orderId}')">❌ Cancel Order</button>`;
-              } else if(orderStatus === "Shipped" || orderStatus === "Delivered") {
-                  actionButtonsHTML = `<button class="invoice-btn" onclick='downloadInvoice(${JSON.stringify(data)})'>📄 Download Bill</button>`;
-              } else if(orderStatus === "Cancelled") {
-                  actionButtonsHTML = `<span style="color:#dc3545; font-weight:bold; font-size:12px;">🚫 Order Cancelled</span>`;
-              }
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                const orderId = docSnap.id;
+                userOrders.push({ id: orderId, ...data });
+                
+                // Date formatting
+                const dateVal = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : "Just Now";
+                
+                // Status styles
+                let badgeClass = "status-badge";
+                let cancelBtnHTML = `<button class="cancel-btn" onclick="cancelOrder('${orderId}')">Cancel Order</button>`;
+                let billBtnHTML = ``;
 
-              list.innerHTML += `
-              <div class="order-card">
-                  <div class="product-section">
-                      <img src="${data.imageUrl}" alt="product">
-                      <div class="product-info">
-                          <h3>${data.productName}</h3>
-                          <p>Order Total: <b>₹${data.price}</b></p>
-                          <p>Status: <b style="color:${orderStatus==='Cancelled'?'#dc3545':'#2e7d32'}">${orderStatus}</b></p>
-                      </div>
-                  </div>
+                if(data.status === 'Cancelled') {
+                    badgeClass += " status-cancelled";
+                    cancelBtnHTML = ``; // Cancel aanaal button thevai illai
+                }
+                
+                // Shipped illai Delivered aanaal dhaan Bill download panna mudiyum
+                if(data.status === 'Shipped' || data.status === 'Delivered') {
+                    cancelBtnHTML = ``; // Ship aana piragu cancel panna mudiyaadhu
+                    billBtnHTML = `<button class="bill-btn" onclick="downloadBill('${orderId}')">📥 Download Bill</button>`;
+                }
 
-                  ${orderStatus !== 'Cancelled' ? `
-                  <div class="track-container">
-                      <div class="track-line"></div>
-                      <div class="track-progress" style="width: ${progressWidth}"></div>
-                      
-                      <div class="step active">
-                          <div class="dot"></div>
-                          <div class="step-text">Placed</div>
-                      </div>
-                      <div class="step ${orderStatus === 'Shipped' || orderStatus === 'Delivered' ? 'active' : ''}">
-                          <div class="dot"></div>
-                          <div class="step-text">Shipped</div>
-                      </div>
-                      <div class="step ${orderStatus === 'Delivered' ? 'active' : ''}">
-                          <div class="dot"></div>
-                          <div class="step-text">Delivered</div>
-                      </div>
-                  </div>` : ''}
+                // Tracker Logic
+                let s1 = data.status !== 'Cancelled' ? "completed" : "";
+                let s2 = (data.status === 'Shipped' || data.status === 'Delivered') ? "completed" : "";
+                let s3 = data.status === 'Delivered' ? "completed" : "";
+                
+                let trackerHTML = data.status === 'Cancelled' ? `<p style="color:red; text-align:center; font-weight:bold; margin-top:20px;">Order Cancelled 🚫</p>` : `
+                    <div class="track-stepper">
+                        <div class="step ${s1}">
+                            <div class="circle">1</div><div class="label">Placed</div>
+                        </div>
+                        <div class="step ${s2}">
+                            <div class="circle">2</div><div class="label">Shipped</div>
+                        </div>
+                        <div class="step ${s3}">
+                            <div class="circle">3</div><div class="label">Delivered</div>
+                        </div>
+                    </div>`;
 
-                  <div class="btn-group">
-                      ${actionButtonsHTML}
-                      ${orderStatus === "Delivered" ? 
-                        `<button class="rate-btn" onclick="openRatingModal('${data.productName}')">⭐ Rate & Review</button>` : ''}
-                  </div>
-              </div>`;
-          });
-      });
-});
+                list.innerHTML += `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span><b>Order ID:</b> #${orderId.substring(0,8).toUpperCase()} <br> <b>Date:</b> ${dateVal}</span>
+                        <span class="${badgeClass}">${data.status}</span>
+                    </div>
+                    
+                    <div class="product-info">
+                        <img src="${data.imageUrl}">
+                        <div class="details">
+                            <h3>${data.productName}</h3>
+                            <p>Size: <b>${data.size}</b></p>
+                            <p>Deliver to: ${data.buyerName}</p>
+                            <div class="price">₹${data.price}</div>
+                        </div>
+                    </div>
 
-/* CANCEL ORDER LOGIC */
-window.cancelOrder = async function(orderId) {
-    if(confirm("Are you sure you want to cancel this order?")) {
-        try {
-            await db.collection("orders").doc(orderId).update({
-                status: "Cancelled"
+                    ${trackerHTML}
+
+                    <div class="btn-group">
+                        ${cancelBtnHTML}
+                        ${billBtnHTML}
+                    </div>
+                </div>`;
             });
-            alert("Order Cancelled Successfully! ⚠️");
-        } catch (err) {
-            alert("Error: " + err.message);
+        });
+    }
+
+    // BUYER CANCEL ORDER LOGIC
+    window.cancelOrder = async function(orderId) {
+        if(confirm("Are you sure you want to cancel this order? 🚫")) {
+            try {
+                await db.collection("orders").doc(orderId).update({ status: "Cancelled" });
+                alert("Order Cancelled Successfully.");
+            } catch(err) {
+                alert("Error cancelling order: " + err.message);
+            }
         }
     }
-}
 
-/* RATE PRODUCT FUNCTION */
-window.openRatingModal = function(productName) {
-    const rating = prompt("Rate this product (1 to 5 stars):", "5");
-    const review = prompt("Write your experience:", "Great product!");
-    if(rating && review) {
-        db.collection("reviews").add({
-            productName: productName,
-            rating: parseInt(rating),
-            review: review,
-            userName: auth.currentUser.email.split('@')[0],
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => alert("Thank you for your rating! ⭐"));
+    // DOWNLOAD BILL LOGIC
+    window.downloadBill = function(orderId) {
+        const order = userOrders.find(o => o.id === orderId);
+        if(!order) return;
+
+        const billContent = `
+=========================================
+          LOYAL FASHION - INVOICE        
+=========================================
+
+Order ID    : #${orderId.toUpperCase()}
+Date        : ${order.createdAt ? order.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString()}
+Status      : ${order.status}
+
+CUSTOMER DETAILS:
+-----------------
+Name        : ${order.buyerName}
+Mobile      : ${order.buyerMobile}
+Address     : ${order.buyerAddress}
+
+PRODUCT DETAILS:
+----------------
+Item        : ${order.productName}
+Size        : ${order.size}
+
+-----------------------------------------
+TOTAL AMOUNT : Rs. ${order.price}
+-----------------------------------------
+
+Thank you for shopping with Loyal Fashion!
+=========================================
+        `;
+
+        // Text file-aa download panna
+        const blob = new Blob([billContent], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Loyal_Fashion_Invoice_${orderId.substring(0,6)}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
-}
-
-/* INVOICE GENERATOR */
-async function downloadInvoice(order) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(22); doc.setTextColor(255, 63, 108); doc.text("LOYAL FASHION", 20, 20);
-    doc.setFontSize(10); doc.setTextColor(100); doc.text("Order Invoice", 20, 28);
-    doc.text("Date: " + new Date().toLocaleDateString(), 150, 28);
-    doc.line(20, 35, 190, 35);
-    doc.setFontSize(12); doc.setTextColor(0); doc.text("Delivery Address:", 20, 45);
-    doc.setFontSize(10); doc.text(order.buyerName || "Customer", 20, 52);
-    doc.text("Contact: " + (order.buyerMobile || "N/A"), 20, 58);
-    doc.text(order.buyerAddress || "N/A", 20, 64, { maxWidth: 80 });
-    doc.line(20, 80, 190, 80);
-    doc.text(order.productName, 20, 105); doc.text("₹" + order.price, 150, 105);
-    doc.line(20, 120, 190, 120); doc.setFontSize(14); doc.text("TOTAL AMOUNT: ₹" + order.price, 110, 130);
-    doc.save(`Loyal_Fashion_Bill_${order.productName}.pdf`);
-}
 </script>
 </body>
 </html>
