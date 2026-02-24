@@ -7,32 +7,46 @@
     <style>
         :root { --primary: #ff3f6c; --dark: #282c3f; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
         
+        .header { background: #fff; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-radius: 8px; margin-bottom: 30px; }
+        .header h2 { margin: 0; color: var(--dark); }
+        .back-btn { background: #fff; color: var(--primary); border: 2px solid var(--primary); padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .back-btn:hover { background: var(--primary); color: #fff; }
+        
+        .wishlist-container { max-width: 1200px; margin: 0 auto; }
         .wish-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
-        .wish-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; position: relative; }
-        .wish-card:hover { transform: translateY(-5px); }
-        .wish-card img { width: 100%; height: 250px; object-fit: cover; }
         
-        .wish-info { padding: 15px; text-align: center; }
+        .wish-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; position: relative; text-align: center; border: 1px solid transparent; }
+        .wish-card:hover { transform: translateY(-5px); border: 1px solid #eee; }
+        .wish-card img { width: 100%; height: 300px; object-fit: cover; }
+        
+        .wish-info { padding: 15px; }
         .wish-info h3 { margin: 0 0 10px 0; font-size: 16px; color: var(--dark); }
         
-        .remove-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; color: #ff4d4d; font-weight: bold; }
-        .add-cart-btn { background: var(--primary); color: #fff; border: none; width: 100%; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 0 0 12px 12px; }
+        .remove-btn { position: absolute; top: 10px; right: 10px; background: #fff; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; color: #ff4d4d; font-weight: bold; box-shadow: 0 3px 8px rgba(0,0,0,0.15); transition: 0.3s; }
+        .remove-btn:hover { background: #ff4d4d; color: #fff; }
         
-        .back-btn { background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .empty-msg { text-align: center; padding: 100px; color: #888; }
+        .view-product-btn { background: var(--dark); color: #fff; border: none; width: 100%; padding: 15px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s; }
+        .view-product-btn:hover { background: #000; }
+        
+        .empty-msg { grid-column: 1 / -1; text-align: center; padding: 80px 20px; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .empty-msg h3 { color: var(--dark); margin-bottom: 10px; font-size: 22px; }
+        .empty-msg p { color: #888; margin-bottom: 20px; }
+        .shop-now-btn { background: var(--primary); color: #fff; border: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h2 style="margin:0;">❤️ My Favorites</h2>
-    <button class="back-btn" onclick="window.location.href='index.html'">← Back to Store</button>
-</div>
-
-<div id="wishlistContainer" class="wish-grid">
+<div class="wishlist-container">
+    <div class="header">
+        <h2>❤️ My Favorites</h2>
+        <button class="back-btn" onclick="window.location.href='index.html'">← Back to Store</button>
     </div>
+
+    <div id="wishlistContainer" class="wish-grid">
+        <p style="text-align:center; color:#666; width:100%;">Loading your favorites... ⏳</p>
+    </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -53,7 +67,15 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 auth.onAuthStateChanged(user => {
-    if (!user) { window.location.href = 'index.html'; return; }
+    if (!user) { 
+        document.getElementById("wishlistContainer").innerHTML = `
+            <div class='empty-msg'>
+                <h3>Login Required 👤</h3>
+                <p>Please login to view your wishlist items.</p>
+                <button class="shop-now-btn" onclick="window.location.href='index.html'">Go to Home</button>
+            </div>`;
+        return; 
+    }
 
     // Fetch Wishlist items for current user
     db.collection("wishlist")
@@ -63,7 +85,12 @@ auth.onAuthStateChanged(user => {
           container.innerHTML = "";
 
           if (snapshot.empty) {
-              container.innerHTML = "<div class='empty-msg'><h3>Your wishlist is empty! ❤️</h3><p>Start saving your favorite items.</p></div>";
+              container.innerHTML = `
+                <div class='empty-msg'>
+                    <h3>Your wishlist is empty! ❤️</h3>
+                    <p>Start saving your favorite items to view them here.</p>
+                    <button class="shop-now-btn" onclick="window.location.href='index.html'">Explore Products</button>
+                </div>`;
               return;
           }
 
@@ -73,12 +100,12 @@ auth.onAuthStateChanged(user => {
 
               container.innerHTML += `
               <div class="wish-card">
-                  <button class="remove-btn" onclick="removeFromWishlist('${wishId}')">✖</button>
-                  <img src="${data.imageUrl}" alt="product">
+                  <button class="remove-btn" title="Remove" onclick="removeFromWishlist('${wishId}')">✖</button>
+                  <img src="${data.imageUrl}" alt="${data.productName}">
                   <div class="wish-info">
                       <h3>${data.productName}</h3>
                   </div>
-                  <button class="add-cart-btn" onclick="addToCart('${data.productName}', '${data.imageUrl}')">ADD TO CART</button>
+                  <button class="view-product-btn" onclick="goToProduct('${data.productName}')">VIEW PRODUCT</button>
               </div>`;
           });
       });
@@ -86,17 +113,24 @@ auth.onAuthStateChanged(user => {
 
 /* REMOVE FROM WISHLIST */
 window.removeFromWishlist = async function(id) {
-    if(confirm("Remove from favorites?")) {
+    if(confirm("Remove this item from your favorites? 💔")) {
         await db.collection("wishlist").doc(id).delete();
     }
 }
 
-/* ADD TO CART FROM WISHLIST */
-window.addToCart = function(name, image) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    cart.push({ name, image, price: "Check in Store" }); 
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Added to Cart! 🛒");
+/* SMART NAVIGATION LOGIC: Find product ID by Name and go to Details Page */
+window.goToProduct = async function(productName) {
+    try {
+        const snap = await db.collection("products").where("productName", "==", productName).get();
+        if(!snap.empty) {
+            const productId = snap.docs[0].id;
+            window.location.href = `product-details.html?id=${productId}`;
+        } else {
+            alert("Oops! This product is currently unavailable. ❌");
+        }
+    } catch(err) {
+        alert("Error finding product: " + err.message);
+    }
 }
 </script>
 </body>
