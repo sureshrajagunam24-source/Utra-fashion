@@ -9,18 +9,23 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
         .checkout-container { max-width: 600px; margin: 20px auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
         
-        /* Product Preview Style */
+        /* Product Preview */
         .order-summary { display: flex; gap: 20px; align-items: center; background: #fafafa; padding: 15px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #eee; }
         .order-summary img { width: 100px; height: 120px; object-fit: cover; border-radius: 8px; }
         .item-details h3 { margin: 0 0 5px; font-size: 18px; color: var(--dark); }
         .item-details p { margin: 5px 0; color: #666; font-size: 15px; }
         .price-tag { color: #000; font-weight: bold; font-size: 18px; }
 
-        /* Form Style */
-        .form-group { margin-bottom: 15px; }
+        /* Form Style with Edit UI */
+        .form-group { margin-bottom: 18px; position: relative; }
         label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 13px; color: #555; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
-        textarea { height: 80px; resize: none; }
+        
+        .input-wrapper { display: flex; gap: 10px; align-items: center; }
+        input, textarea { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; background: #f9f9f9; transition: 0.3s; }
+        input[readonly], textarea[readonly] { background: #f1f1f1; cursor: not-allowed; border-color: transparent; }
+        
+        .edit-btn { background: #eee; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.3s; }
+        .edit-btn:hover { background: #ddd; }
         
         .place-order-btn { width: 100%; background: var(--dark); color: #fff; padding: 15px; border: none; border-radius: 8px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         .place-order-btn:hover { background: #000; transform: translateY(-2px); }
@@ -39,15 +44,26 @@
 
     <div class="form-group">
         <label>Full Name</label>
-        <input type="text" id="bName" placeholder="Enter your full name">
+        <div class="input-wrapper">
+            <input type="text" id="bName" placeholder="Loading profile..." readonly>
+            <button class="edit-btn" onclick="toggleEdit('bName')">✏️ Edit</button>
+        </div>
     </div>
+
     <div class="form-group">
         <label>Mobile Number</label>
-        <input type="number" id="bMobile" placeholder="Enter 10 digit mobile number">
+        <div class="input-wrapper">
+            <input type="number" id="bMobile" placeholder="Loading mobile..." readonly>
+            <button class="edit-btn" onclick="toggleEdit('bMobile')">✏️ Edit</button>
+        </div>
     </div>
+
     <div class="form-group">
         <label>Delivery Address</label>
-        <textarea id="bAddress" placeholder="Enter your full home address with pincode"></textarea>
+        <div class="input-wrapper">
+            <textarea id="bAddress" placeholder="Loading address..." readonly></textarea>
+            <button class="edit-btn" onclick="toggleEdit('bAddress')">✏️ Edit</button>
+        </div>
     </div>
 
     <button class="place-order-btn" onclick="confirmOrder()">PLACE ORDER (CASH ON DELIVERY)</button>
@@ -59,7 +75,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <script>
-    // Firebase Config
     const firebaseConfig = { 
         apiKey:"AIzaSyCax6078YpxQU0kHIChQLuEmpLUYXSxQr4", 
         authDomain:"e-commerce-wepsite.firebaseapp.com", 
@@ -72,7 +87,6 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // 1. Details page-la irundhu vandha data-ah fetch pannuvom
     const buyData = JSON.parse(localStorage.getItem("directBuy"));
 
     if(buyData) {
@@ -88,7 +102,38 @@
         window.location.href = "index.html";
     }
 
-    // 2. Order Place Logic
+    // AUTO-FILL PROFILE DATA
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            db.collection("users").doc(user.uid).get().then(doc => {
+                if (doc.exists) {
+                    const profile = doc.data();
+                    document.getElementById("bName").value = profile.fullName || "";
+                    document.getElementById("bMobile").value = profile.mobile || "";
+                    document.getElementById("bAddress").value = profile.address || "";
+                } else {
+                    alert("Profile not found. Please fill details manually.");
+                    document.querySelectorAll('input, textarea').forEach(el => el.removeAttribute('readonly'));
+                }
+            });
+        }
+    });
+
+    // TOGGLE EDIT FUNCTION
+    window.toggleEdit = function(id) {
+        const input = document.getElementById(id);
+        if (input.hasAttribute('readonly')) {
+            input.removeAttribute('readonly');
+            input.style.background = "#fff";
+            input.style.borderColor = "var(--primary)";
+            input.focus();
+        } else {
+            input.setAttribute('readonly', true);
+            input.style.background = "#f1f1f1";
+            input.style.borderColor = "#ddd";
+        }
+    }
+
     window.confirmOrder = async function() {
         const name = document.getElementById("bName").value.trim();
         const mobile = document.getElementById("bMobile").value.trim();
@@ -108,22 +153,21 @@
         document.getElementById("msg").innerText = "Placing Order... ⏳";
 
         try {
-            // Firestore-la order-ah save pannuvom
             await db.collection("orders").add({
                 productName: buyData.productName,
                 price: buyData.price,
                 imageUrl: buyData.imageUrl,
-                size: buyData.size, // Size sethukittoam
+                size: buyData.size,
                 buyerName: name,
                 buyerMobile: mobile,
                 buyerAddress: address,
                 user: user.email,
-                status: "Pending", // Initial status
+                status: "Pending",
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
             document.getElementById("msg").innerText = "Order Placed Successfully! 🎉";
-            localStorage.removeItem("directBuy"); // Data-ah clear pannuvom
+            localStorage.removeItem("directBuy");
             
             setTimeout(() => {
                 window.location.href = "my-orders.html";
