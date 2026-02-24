@@ -45,6 +45,21 @@
         .circle-btn { width: 45px; height: 45px; border-radius: 50%; border: 1px solid #eee; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
         .back-link { cursor: pointer; color: var(--primary); font-weight: bold; margin-bottom: 20px; display: block; text-decoration: none; }
+
+        /* REVIEWS SECTION STYLES */
+        .reviews-container { max-width: 1200px; margin: 50px auto; padding: 30px; background: #fafafa; border-radius: 12px; border: 1px solid #eee; }
+        .reviews-container h2 { margin-top: 0; color: var(--dark); }
+        .review-card { border-bottom: 1px solid #ddd; padding: 15px 0; }
+        .review-card:last-child { border-bottom: none; }
+        .r-header { display: flex; justify-content: space-between; align-items: center; }
+        .r-header b { font-size: 15px; color: #333; }
+        .r-header span { font-size: 12px; color: #888; }
+        .r-stars { color: #ffc107; font-size: 14px; margin: 5px 0; }
+        .r-comment { color: #555; font-size: 14px; line-height: 1.5; margin: 0; }
+        
+        .add-review-box { background: #fff; padding: 20px; border-radius: 8px; margin-top: 30px; border: 1px solid #eee; }
+        .add-review-box select, .add-review-box textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; box-sizing: border-box;}
+        .add-review-box button { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -90,6 +105,30 @@
     </div>
 </div>
 
+<div class="reviews-container">
+    <h2>Customer Reviews ⭐</h2>
+    <div id="reviews-list">
+        <p style="color:#666;">Loading reviews... ⏳</p>
+    </div>
+
+    <div id="login-msg" style="margin-top:20px; color:var(--primary); font-weight:bold;">
+        Please login to write a review. 👤
+    </div>
+
+    <div class="add-review-box" id="review-form-box" style="display:none;">
+        <h3>Write a Review ✍️</h3>
+        <select id="r-rating">
+            <option value="5">⭐⭐⭐⭐⭐ (5/5) - Excellent</option>
+            <option value="4">⭐⭐⭐⭐ (4/5) - Very Good</option>
+            <option value="3">⭐⭐⭐ (3/5) - Good</option>
+            <option value="2">⭐⭐ (2/5) - Average</option>
+            <option value="1">⭐ (1/5) - Poor</option>
+        </select>
+        <textarea id="r-comment" rows="3" placeholder="Write your experience with this product..."></textarea>
+        <button onclick="submitReview()">Submit Review</button>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -112,11 +151,8 @@ if(productId) {
             document.getElementById("p-name").innerText = productData.productName;
             document.getElementById("p-price").innerText = "₹" + productData.price;
             document.getElementById("mainImg").src = productData.imageUrl;
-            
-            // Description load pannuvom
             document.getElementById("p-desc").innerText = productData.description || "Premium quality material. Part of the Loyal Fashion exclusive collection.";
             
-            // Sizes load pannuvom
             const sizeList = document.getElementById("size-list");
             if(productData.sizes && productData.sizes.length > 0) {
                 productData.sizes.forEach(size => {
@@ -126,7 +162,6 @@ if(productId) {
                 document.getElementById("size-area").style.display = "none";
             }
 
-            // Gallery Thumbnails
             const images = [productData.imageUrl, productData.imageUrl2, productData.imageUrl3, productData.imageUrl4, productData.imageUrl5, productData.imageUrl6];
             let thumbHTML = '';
             images.forEach((img, idx) => {
@@ -136,17 +171,91 @@ if(productId) {
             });
             document.getElementById("thumbnail-list").innerHTML = thumbHTML;
 
-            // Rating fetch
-            db.collection("reviews").where("productName", "==", productData.productName).get().then(snap => {
-                let total = 0;
-                snap.forEach(r => total += r.data().rating);
-                let avg = snap.size > 0 ? (total / snap.size).toFixed(1) : "0.0";
-                document.getElementById("p-rating").innerText = `⭐ ${avg} (${snap.size} Reviews)`;
-            });
+            // Load Reviews after getting product name
+            loadReviews();
         }
     });
 }
 
+// Check Login Status for Review Box
+auth.onAuthStateChanged(user => {
+    if(user) {
+        document.getElementById("login-msg").style.display = "none";
+        document.getElementById("review-form-box").style.display = "block";
+    } else {
+        document.getElementById("login-msg").style.display = "block";
+        document.getElementById("review-form-box").style.display = "none";
+    }
+});
+
+/* REVIEWS LOGIC */
+function loadReviews() {
+    db.collection("reviews").where("productName", "==", productData.productName).onSnapshot(snap => {
+        const list = document.getElementById("reviews-list");
+        list.innerHTML = "";
+        let totalRating = 0;
+        let reviewsArr = [];
+
+        snap.forEach(doc => reviewsArr.push(doc.data()));
+
+        // Sort by newest first
+        reviewsArr.sort((a,b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+
+        if(reviewsArr.length === 0) {
+            list.innerHTML = "<p style='color:#666;'>No reviews yet. Be the first to review! 🌟</p>";
+        } else {
+            reviewsArr.forEach(r => {
+                totalRating += r.rating;
+                let stars = "⭐".repeat(r.rating);
+                let dateStr = r.createdAt ? r.createdAt.toDate().toLocaleDateString() : "Just now";
+                
+                list.innerHTML += `
+                <div class="review-card">
+                    <div class="r-header"><b>${r.userName}</b> <span>${dateStr}</span></div>
+                    <div class="r-stars">${stars}</div>
+                    <p class="r-comment">${r.comment}</p>
+                </div>`;
+            });
+        }
+        
+        let avg = snap.size > 0 ? (totalRating / snap.size).toFixed(1) : "0.0";
+        document.getElementById("p-rating").innerText = `⭐ ${avg} (${snap.size} Reviews)`;
+    });
+}
+
+window.submitReview = async function() {
+    const user = auth.currentUser;
+    const rating = parseInt(document.getElementById("r-rating").value);
+    const comment = document.getElementById("r-comment").value.trim();
+
+    if(!comment) { alert("Please write a comment! 📝"); return; }
+
+    try {
+        // Fetch user's actual name from profile
+        let uName = user.email.split('@')[0];
+        const userDoc = await db.collection("users").doc(user.uid).get();
+        if(userDoc.exists && (userDoc.data().fullName || userDoc.data().name)) {
+            uName = userDoc.data().fullName || userDoc.data().name;
+        }
+
+        await db.collection("reviews").add({
+            productName: productData.productName,
+            productId: productId,
+            userName: uName,
+            userEmail: user.email,
+            rating: rating,
+            comment: comment,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        document.getElementById("r-comment").value = "";
+        alert("Review submitted successfully! Thank you! ⭐");
+    } catch(err) {
+        alert("Error: " + err.message);
+    }
+}
+
+// UI Functions
 window.selectSize = function(btn, size) {
     selectedSize = size;
     document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
@@ -159,45 +268,6 @@ window.changeImg = function(el, src) {
     el.classList.add('active');
 }
 
-/* MASS UPDATE: BUY NOW FLOW */
-window.prepareBuy = function() {
-    if(productData.sizes && productData.sizes.length > 0 && !selectedSize) {
-        alert("Please select a size first! 👕");
-        return;
-    }
-
-    const buyItem = {
-        productId: productId,
-        productName: productData.productName,
-        price: productData.price,
-        imageUrl: productData.imageUrl,
-        size: selectedSize || "Free Size"
-    };
-
-    localStorage.setItem("directBuy", JSON.stringify(buyItem));
-    window.location.href = "checkout.html"; 
-}
-
-/* ADD TO CART FLOW */
-window.addToCart = function() {
-    const user = auth.currentUser;
-    if(!user) { alert("Please login first! 👤"); return; }
-    
-    if(productData.sizes && productData.sizes.length > 0 && !selectedSize) {
-        alert("Please select a size first! 👕");
-        return;
-    }
-
-    db.collection("cart").add({
-        user: user.email,
-        productName: productData.productName,
-        price: productData.price,
-        imageUrl: productData.imageUrl,
-        size: selectedSize || "Free Size",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => alert("Added to Cart! 🛒"));
-}
-
 function zoom(e) {
     const zoomer = e.currentTarget;
     const img = zoomer.querySelector('img');
@@ -207,6 +277,22 @@ function zoom(e) {
 }
 function resetZoom() { document.getElementById("mainImg").style.transformOrigin = `center`; }
 
+window.prepareBuy = function() {
+    if(productData.sizes && productData.sizes.length > 0 && !selectedSize) {
+        alert("Please select a size first! 👕"); return;
+    }
+    const buyItem = { productId: productId, productName: productData.productName, price: productData.price, imageUrl: productData.imageUrl, size: selectedSize || "Free Size" };
+    localStorage.setItem("directBuy", JSON.stringify(buyItem));
+    window.location.href = "checkout.html"; 
+}
+
+window.addToCart = function() {
+    const user = auth.currentUser;
+    if(!user) { alert("Please login first! 👤"); return; }
+    if(productData.sizes && productData.sizes.length > 0 && !selectedSize) { alert("Please select a size first! 👕"); return; }
+    db.collection("cart").add({ user: user.email, productName: productData.productName, price: productData.price, imageUrl: productData.imageUrl, size: selectedSize || "Free Size", createdAt: firebase.firestore.FieldValue.serverTimestamp() }).then(() => alert("Added to Cart! 🛒"));
+}
+
 function shareWa() {
     const text = `Check this out on Loyal Fashion! 🔥\n\n🛍 *${productData.productName}*\n💰 Price: ₹${productData.price}\n\nLink: ${window.location.href}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
@@ -215,9 +301,7 @@ function shareWa() {
 function addFav() {
     const user = auth.currentUser;
     if(!user) { alert("Please Login First! 👤"); return; }
-    db.collection("wishlist").add({
-        user: user.email, productName: productData.productName, imageUrl: productData.imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => alert("Added to Wishlist! ❤️"));
+    db.collection("wishlist").add({ user: user.email, productName: productData.productName, imageUrl: productData.imageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() }).then(() => alert("Added to Wishlist! ❤️"));
 }
 </script>
 </body>
