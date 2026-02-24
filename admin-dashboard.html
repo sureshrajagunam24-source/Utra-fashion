@@ -248,7 +248,7 @@ window.updateOrderStatus = async function(orderId, newStatus) {
     try { await updateDoc(doc(db, "orders", orderId), { status: newStatus }); } catch (err) { }
 }
 
-/* REAL-TIME ORDER LOAD LOGIC */
+/* UPDATED ORDER LOAD LOGIC */
 function loadOrders(){
     const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
@@ -258,12 +258,14 @@ function loadOrders(){
             const data = docSnap.data();
             const orderId = docSnap.id;
             
-            // AUTOMATIC STATUS COLOR
             let statusColor = "#ef6c00"; 
             if(data.status === 'Shipped') statusColor = "#007bff";
             if(data.status === 'Delivered') statusColor = "#28a745";
-            if(data.status === 'Cancelled') statusColor = "#dc3545"; // Red for cancelled
-            
+            if(data.status === 'Cancelled') statusColor = "#dc3545"; 
+
+            // Disable dropdown if order is Cancelled
+            const isDisabled = data.status === 'Cancelled' ? 'disabled' : '';
+
             table.innerHTML += `
             <tr>
                 <td><img src="${data.imageUrl || 'image.png'}" class="order-img"></td>
@@ -277,7 +279,7 @@ function loadOrders(){
                 </td>
                 <td>
                     <select class="status-select" onchange="updateOrderStatus('${orderId}', this.value)" 
-                            style="color:${statusColor}; border-color:${statusColor};">
+                            style="color:${statusColor}; border-color:${statusColor};" ${isDisabled}>
                         <option value="Pending" ${data.status === 'Pending' ? 'selected' : ''}>Pending</option>
                         <option value="Shipped" ${data.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
                         <option value="Delivered" ${data.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
