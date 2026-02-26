@@ -5,6 +5,7 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ff3f6c",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "image.png",
@@ -15,6 +16,14 @@
       "src": "image.png",
       "sizes": "512x512",
       "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "image.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide"
     }
   ]
 }
