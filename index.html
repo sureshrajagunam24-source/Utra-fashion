@@ -277,6 +277,12 @@ window.addToCart = function(id,name,price,image){
     document.getElementById("cartCount").innerText=cart.length;
     alert("Added to Cart ✅");
 }
+
+    }
+ if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js")
+}
+    }    
 </script>
 </body>
 </html>
