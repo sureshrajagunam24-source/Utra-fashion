@@ -114,7 +114,7 @@
 <div id="profileSidebar">
     <button onclick="closeProfile()" style="float:right; border:none; background:none; font-size:20px; cursor:pointer;">✖</button>
     <div style="text-align:center; margin-top:30px;"><div id="sideLetter" style="width:60px; height:60px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; margin:0 auto;"></div></div>
-    <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+    <hr style="margin:20px 0; border:0; border-top:1px solid #eee;"><br>
     <input type="text" id="sideName" placeholder="Full Name" style="width:90%; padding:10px; margin-bottom:10px;">
     <input type="number" id="sideMobile" placeholder="Mobile" style="width:90%; padding:10px; margin-bottom:10px;">
     <textarea id="sideAddress" rows="3" placeholder="Address" style="width:90%; padding:10px; margin-bottom:10px;"></textarea>
@@ -278,11 +278,10 @@ window.addToCart = function(id,name,price,image){
     alert("Added to Cart ✅");
 }
 
-    }
- if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js")
+// SERVICE WORKER REGISTRATION (PWA BUILDER KEY)
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/pwabuilder-sw.js");
 }
-    }    
 </script>
 </body>
 </html>
