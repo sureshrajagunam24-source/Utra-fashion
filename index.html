@@ -156,18 +156,23 @@ const auth=firebase.auth();
 let allProducts = []; 
 let isLoginMode = true;
 
-// BANNER SLIDER LOGIC
+// BANNER SLIDER LOGIC (Corrected for 5 Banners)
 let slideIndex = 0;
 function startBanner() {
     const slider = document.getElementById('bannerSlider');
     const slides = document.querySelectorAll('.slide');
-    if(slides.length === 0) return;
+    const totalBanners = slides.length; // Automatic-aa 5-nu count pannikkum
+
+    if(totalBanners === 0) return;
     
     setInterval(() => {
         slideIndex++;
-        if(slideIndex >= slides.length) slideIndex = 0;
-        slider.style.transform = `translateX(-${slideIndex * 100}%)`;
-    }, 3000); // 3 seconds interval
+        if(slideIndex >= totalBanners) slideIndex = 0;
+        
+        // CORRECTION: 100 / 5 = 20%. So 0%, 20%, 40%, 60%, 80% nu move aaganum.
+        const movePercentage = (100 / totalBanners) * slideIndex;
+        slider.style.transform = `translateX(-${movePercentage}%)`;
+    }, 3000); 
 }
 startBanner();
 
