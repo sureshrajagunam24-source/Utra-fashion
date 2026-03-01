@@ -23,7 +23,11 @@
         .details p { margin: 2px 0; color: #666; font-size: 14px; }
         .price { font-size: 18px; font-weight: bold; color: #000; margin-top: 5px; }
 
-        /* TRACKING STEPPER UI */
+        /* TRACKING UI UPDATED */
+        .track-info { background: #f9f9f9; padding: 12px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--primary); }
+        .track-info b { font-size: 13px; color: var(--dark); }
+        .track-btn { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; width: 100%; }
+
         .track-stepper { display: flex; justify-content: space-between; position: relative; margin: 25px 0 10px; }
         .track-stepper::before { content: ''; position: absolute; top: 15px; left: 10%; width: 80%; height: 3px; background: #eee; z-index: 1; }
         .step { position: relative; z-index: 2; text-align: center; width: 33%; }
@@ -35,9 +39,8 @@
         .step.completed .circle { background: #28a745; color: #fff; }
         .step.completed .label { color: #28a745; }
 
-        .btn-group { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
-        .bill-btn { background: var(--dark); color: #fff; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .bill-btn:hover { background: #000; }
+        .btn-group { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; flex-wrap: wrap; }
+        .bill-btn { background: var(--dark); color: #fff; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .cancel-btn { background: #fff; color: #c62828; border: 1px solid #c62828; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
@@ -71,12 +74,20 @@
     let userOrders = [];
 
     auth.onAuthStateChanged(user => {
-        if(user) {
-            loadMyOrders(user.email);
-        } else {
-            window.location.href = "index.html"; 
-        }
+        if(user) { loadMyOrders(user.email); } else { window.location.href = "index.html"; }
     });
+
+    // Tracking redirect logic
+    window.openTracking = function(courier, id) {
+        let url = "";
+        const c = courier.toLowerCase();
+        if(c.includes("delhivery")) url = `https://www.delhivery.com/track/package/${id}`;
+        else if(c.includes("st")) url = `https://stcourier.com/track/`;
+        else if(c.includes("professional")) url = `https://www.tpcindia.com/Default.aspx`;
+        else url = `https://www.google.com/search?q=${courier}+tracking+${id}`;
+        
+        window.open(url, "_blank");
+    }
 
     function loadMyOrders(email) {
         db.collection("orders").where("user", "==", email).orderBy("createdAt", "desc").onSnapshot(snapshot => {
@@ -84,30 +95,32 @@
             list.innerHTML = "";
             userOrders = [];
 
-            if(snapshot.empty) {
-                list.innerHTML = `<p style="text-align:center; color:#666;">You haven't placed any orders yet! 🛒</p>`;
-                return;
-            }
-
             snapshot.forEach(docSnap => {
                 const data = docSnap.data();
                 const orderId = docSnap.id;
                 userOrders.push({ id: orderId, ...data });
-                
                 const dateVal = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : "Just Now";
                 
                 let badgeClass = "status-badge";
                 let cancelBtnHTML = `<button class="cancel-btn" onclick="cancelOrder('${orderId}')">Cancel Order</button>`;
                 let billBtnHTML = ``;
 
-                if(data.status === 'Cancelled') {
-                    badgeClass += " status-cancelled";
+                if(data.status === 'Cancelled') { badgeClass += " status-cancelled"; cancelBtnHTML = ``; }
+                if(data.status === 'Shipped' || data.status === 'Delivered') { 
                     cancelBtnHTML = ``; 
+                    billBtnHTML = `<button class="bill-btn" onclick="downloadPDFBill('${orderId}')">📥 Invoice</button>`;
                 }
-                
-                if(data.status === 'Shipped' || data.status === 'Delivered') {
-                    cancelBtnHTML = ``; 
-                    billBtnHTML = `<button class="bill-btn" onclick="downloadPDFBill('${orderId}')">📥 Download PDF Bill</button>`;
+
+                // Tracking Details Box
+                let trackingHTML = "";
+                if(data.status === 'Shipped' && data.trackingID) {
+                    trackingHTML = `
+                        <div class="track-info">
+                            <b>🚚 Tracking Info:</b><br>
+                            <small>${data.courierName || 'Courier Partner'}: ${data.trackingID}</small><br>
+                            <button class="track-btn" onclick="openTracking('${data.courierName}','${data.trackingID}')">TRACK NOW 🔗</button>
+                        </div>
+                    `;
                 }
 
                 let s1 = data.status !== 'Cancelled' ? "completed" : "";
@@ -116,39 +129,30 @@
                 
                 let trackerHTML = data.status === 'Cancelled' ? `<p style="color:red; text-align:center; font-weight:bold; margin-top:20px;">Order Cancelled 🚫</p>` : `
                     <div class="track-stepper">
-                        <div class="step ${s1}">
-                            <div class="circle">1</div><div class="label">Placed</div>
-                        </div>
-                        <div class="step ${s2}">
-                            <div class="circle">2</div><div class="label">Shipped</div>
-                        </div>
-                        <div class="step ${s3}">
-                            <div class="circle">3</div><div class="label">Delivered</div>
-                        </div>
+                        <div class="step ${s1}"><div class="circle">1</div><div class="label">Placed</div></div>
+                        <div class="step ${s2}"><div class="circle">2</div><div class="label">Shipped</div></div>
+                        <div class="step ${s3}"><div class="circle">3</div><div class="label">Delivered</div></div>
                     </div>`;
 
                 list.innerHTML += `
                 <div class="order-card">
                     <div class="order-header">
-                        <span><b>Order ID:</b> #${orderId.substring(0,8).toUpperCase()} <br> <b>Date:</b> ${dateVal}</span>
+                        <span><b>#${orderId.substring(0,8).toUpperCase()}</b> | ${dateVal}</span>
                         <span class="${badgeClass}">${data.status}</span>
                     </div>
-                    
                     <div class="product-info">
                         <img src="${data.imageUrl}">
                         <div class="details">
                             <h3>${data.productName}</h3>
                             <p>Size: <b>${data.size}</b></p>
-                            <p>Deliver to: ${data.buyerName}</p>
+                            <p>To: ${data.buyerName}</p>
                             <div class="price">₹${data.price}</div>
                         </div>
                     </div>
-
                     ${trackerHTML}
-
+                    ${trackingHTML}
                     <div class="btn-group">
-                        ${cancelBtnHTML}
-                        ${billBtnHTML}
+                        ${cancelBtnHTML} ${billBtnHTML}
                     </div>
                 </div>`;
             });
@@ -156,87 +160,39 @@
     }
 
     window.cancelOrder = async function(orderId) {
-        if(confirm("Are you sure you want to cancel this order? 🚫")) {
-            try {
-                await db.collection("orders").doc(orderId).update({ status: "Cancelled" });
-                alert("Order Cancelled Successfully.");
-            } catch(err) {
-                alert("Error cancelling order: " + err.message);
-            }
+        if(confirm("Cancel this order? 🚫")) {
+            try { await db.collection("orders").doc(orderId).update({ status: "Cancelled" }); } catch(err) { }
         }
     }
 
-    // MASS UPDATE: PDF GENERATION LOGIC
     window.downloadPDFBill = function(orderId) {
         const order = userOrders.find(o => o.id === orderId);
         if(!order) return;
-
         const dateStr = order.createdAt ? order.createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString();
-
-        // Hidden div-la bill design ready panrom
         const invoiceElement = document.createElement('div');
         invoiceElement.innerHTML = `
-            <div style="padding: 40px; font-family: 'Segoe UI', sans-serif; color: #333; background: #fff;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #ff3f6c; margin: 0; font-size: 28px; text-transform: uppercase;">Loyal Fashion</h1>
-                    <p style="margin: 5px 0; color: #666; font-size: 14px;">Premium E-Commerce Store</p>
-                </div>
-                
-                <hr style="border: 0; border-top: 2px solid #eee; margin-bottom: 30px;">
-                
-                <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
-                    <div>
-                        <p style="margin: 5px 0;"><b>Order ID:</b> #${orderId.toUpperCase()}</p>
-                        <p style="margin: 5px 0;"><b>Order Date:</b> ${dateStr}</p>
-                        <p style="margin: 5px 0;"><b>Payment Mode:</b> Cash On Delivery</p>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 30px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
-                    <h3 style="margin-top: 0; color: #282c3f;">Billed To:</h3>
-                    <p style="margin: 5px 0;"><b>Name:</b> ${order.buyerName}</p>
-                    <p style="margin: 5px 0;"><b>Mobile:</b> ${order.buyerMobile}</p>
-                    <p style="margin: 5px 0;"><b>Address:</b> ${order.buyerAddress}</p>
-                </div>
-                
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-                    <thead>
-                        <tr style="background: #282c3f; color: #fff;">
-                            <th style="padding: 12px; text-align: left;">Product Name</th>
-                            <th style="padding: 12px; text-align: center;">Size</th>
-                            <th style="padding: 12px; text-align: right;">Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 15px 12px; border-bottom: 1px solid #eee;"><b>${order.productName}</b></td>
-                            <td style="padding: 15px 12px; text-align: center; border-bottom: 1px solid #eee;">${order.size || 'Free Size'}</td>
-                            <td style="padding: 15px 12px; text-align: right; border-bottom: 1px solid #eee;">₹${order.price}</td>
-                        </tr>
-                    </tbody>
+            <div style="padding: 40px; font-family: 'Segoe UI', sans-serif; background: #fff;">
+                <h1 style="color: #ff3f6c; text-align: center;">Loyal Fashion</h1>
+                <p><b>Order ID:</b> #${orderId.toUpperCase()}</p>
+                <p><b>Date:</b> ${dateStr}</p>
+                <hr>
+                <p><b>Customer:</b> ${order.buyerName}</p>
+                <p><b>Address:</b> ${order.buyerAddress}</p>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <tr style="background: #282c3f; color: #fff;">
+                        <th style="padding: 10px; text-align: left;">Product</th>
+                        <th style="padding: 10px;">Size</th>
+                        <th style="padding: 10px; text-align: right;">Price</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">${order.productName}</td>
+                        <td style="padding: 10px; text-align: center;">${order.size}</td>
+                        <td style="padding: 10px; text-align: right;">₹${order.price}</td>
+                    </tr>
                 </table>
-                
-                <div style="text-align: right; font-size: 20px; margin-top: 20px;">
-                    <p style="margin: 0;">Total Amount: <b style="color: #ff3f6c;">₹${order.price}</b></p>
-                </div>
-                
-                <div style="text-align: center; margin-top: 60px; color: #888; font-size: 13px; border-top: 1px solid #eee; padding-top: 20px;">
-                    <p>Thank you for shopping with Loyal Fashion! ❤️</p>
-                    <p>For support, contact: support@loyalfashion.com</p>
-                </div>
-            </div>
-        `;
-
-        // PDF options
-        const opt = {
-            margin:       0.5,
-            filename:     `Loyal_Fashion_Invoice_${orderId.substring(0,6)}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-
-        // Convert to PDF and download
+                <h2 style="text-align: right; color: #ff3f6c;">Total: ₹${order.price}</h2>
+            </div>`;
+        const opt = { margin: 0.5, filename: `Invoice_${orderId.substring(0,6)}.pdf`, jsPDF: { unit: 'in', format: 'letter' } };
         html2pdf().set(opt).from(invoiceElement).save();
     }
 </script>
