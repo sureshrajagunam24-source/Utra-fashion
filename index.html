@@ -163,10 +163,26 @@ function startBanner() {
     const slides = document.querySelectorAll('.slide');
     if(slides.length === 0) return;
     
+   // BANNER SLIDER LOGIC (Updated for 5 Banners)
+let slideIndex = 0;
+
+function startBanner() {
+    const slider = document.getElementById('bannerSlider');
+    const slides = document.querySelectorAll('.slide');
+    const totalBanners = slides.length; // Automatic-aa 5 images-ah count pannikkum
+
+    if(totalBanners === 0) return;
+    
+    // Width-ah correct-aa 5 images-kku set panradhu
+    slider.style.width = (totalBanners * 100) + "%";
+
     setInterval(() => {
         slideIndex++;
-        if(slideIndex >= slides.length) slideIndex = 0;
-        slider.style.transform = `translateX(-${slideIndex * 100}%)`;
+        if(slideIndex >= totalBanners) slideIndex = 0;
+        
+        // 100 / 5 = 20% ovvoru slide-ukkum move aagum
+        const movePercentage = (100 / totalBanners) * slideIndex;
+        slider.style.transform = `translateX(-${movePercentage}%)`;
     }, 3000); // 3 seconds interval
 }
 startBanner();
