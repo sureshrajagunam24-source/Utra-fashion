@@ -2,15 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
     <title>UTRA FASHION - Premium Store</title>
     
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ffffff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <style>
         :root { --primary: #000000; --dark: #282c3f; --light: #f5f5f6; }
         body{background:#fff;font-family:'Segoe UI', sans-serif;margin:0; overflow-x: hidden; color: var(--dark);}
@@ -21,6 +16,11 @@
 
         .logo-section { display:flex; align-items:center; gap:12px; cursor: pointer; }
         .logo-section b { font-size: 20px; color: #000; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* AUTOMATIC SLIDER STYLE */
+        .slider-container { width: 100%; max-width: 1200px; margin: 15px auto; overflow: hidden; border-radius: 8px; position: relative; }
+        .slider-wrapper { display: flex; transition: transform 0.6s ease-in-out; width: 100%; }
+        .slide { min-width: 100%; height: 250px; object-fit: cover; }
 
         /* SEARCH BAR */
         .search-container { background: var(--light); padding: 8px 15px; border-radius: 4px; display: flex; align-items: center; width: 350px; border: 1px solid #eee; }
@@ -75,6 +75,7 @@
             .product-grid { padding: 15px 10px; grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .product-card img { height: 180px; }
             #profileSidebar { width: 85%; }
+            .slide { height: 160px; }
         }
     </style>
 </head>
@@ -108,13 +109,21 @@
     </div>
 </div>
 
+<div class="slider-container">
+    <div class="slider-wrapper" id="bannerSlider">
+        <img src="banner1.jpg" class="slide" alt="Offer 1">
+        <img src="banner2.jpg" class="slide" alt="Offer 2">
+        <img src="banner3.jpg" class="slide" alt="Offer 3">
+    </div>
+</div>
+
 <div class="product-grid" id="product-list"></div>
 
 <div class="sidebar-overlay" id="overlay" onclick="closeProfile()"></div>
 <div id="profileSidebar">
     <button onclick="closeProfile()" style="float:right; border:none; background:none; font-size:20px; cursor:pointer;">✖</button>
     <div style="text-align:center; margin-top:30px;"><div id="sideLetter" style="width:60px; height:60px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; margin:0 auto;"></div></div>
-    <hr style="margin:20px 0; border:0; border-top:1px solid #eee;"><br>
+    <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
     <input type="text" id="sideName" placeholder="Full Name" style="width:90%; padding:10px; margin-bottom:10px;">
     <input type="number" id="sideMobile" placeholder="Mobile" style="width:90%; padding:10px; margin-bottom:10px;">
     <textarea id="sideAddress" rows="3" placeholder="Address" style="width:90%; padding:10px; margin-bottom:10px;"></textarea>
@@ -144,6 +153,21 @@ const auth=firebase.auth();
 
 let allProducts = []; 
 let isLoginMode = true;
+
+// BANNER SLIDER LOGIC
+let slideIndex = 0;
+function startBanner() {
+    const slider = document.getElementById('bannerSlider');
+    const slides = document.querySelectorAll('.slide');
+    if(slides.length === 0) return;
+    
+    setInterval(() => {
+        slideIndex++;
+        if(slideIndex >= slides.length) slideIndex = 0;
+        slider.style.transform = `translateX(-${slideIndex * 100}%)`;
+    }, 3000); // 3 seconds interval
+}
+startBanner();
 
 db.collection("products").orderBy("createdAt","desc").onSnapshot(snapshot=>{
     allProducts = [];
@@ -278,7 +302,6 @@ window.addToCart = function(id,name,price,image){
     alert("Added to Cart ✅");
 }
 
-// SERVICE WORKER REGISTRATION (PWA BUILDER KEY)
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/pwabuilder-sw.js");
 }
